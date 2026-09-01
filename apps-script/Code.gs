@@ -67,7 +67,7 @@ function doPost(e) {
     // 기본: 참석 여부 저장
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('참석여부');
     const timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm');
-    sheet.appendRow([timestamp, data.side || '', data.name || '', data.count || '']);
+    sheet.appendRow([timestamp, data.side || '', data.attend || '', data.meal || '', data.name || '', data.count || '', data.message || '']);
   }
 
   return ContentService
@@ -80,6 +80,7 @@ function doPost(e) {
 function setupAll() {
   fixAccountsTab();
   applyRealInfo();
+  fixRsvpHeaders();
   colorEditableCells();
 }
 
@@ -124,6 +125,15 @@ function fixAccountsTab() {
   const last = sh.getLastRow();
   if (last > 1) sh.getRange(2, 1, last - 1, 4).clearContent();
   sh.getRange(2, 1, rows.length, 4).setValues(rows);
+}
+
+// 참석여부 탭 헤더를 새 형식(참석여부/식사여부/전달사항 포함)으로 맞춥니다.
+// 기존에 접수된 응답 행은 그대로 두고 헤더만 바꾸므로 안전합니다.
+function fixRsvpHeaders() {
+  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('참석여부');
+  if (!sh) return;
+  const headers = ['시간', '구분', '참석여부', '식사여부', '성함', '인원', '전달사항'];
+  sh.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
 }
 
 /**
@@ -232,7 +242,7 @@ function setupSheet() {
     ['신부측', '최미경 (모)', '우리은행', '1002-345-678901'],
   ]);
 
-  fillSheet('참석여부', ['시간', '구분', '성함', '인원'], []);
+  fillSheet('참석여부', ['시간', '구분', '참석여부', '식사여부', '성함', '인원', '전달사항'], []);
 
   ss.setActiveSheet(settings);
   ss.moveActiveSheet(1);

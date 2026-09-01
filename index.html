@@ -19,17 +19,15 @@
 
   <!-- 1. 메인 -->
   <section class="sec-hero" data-screen-label="메인">
-    <div class="hero-frame">
-      <div class="hero-bg img-slot" id="slot-hero"></div>
-      <div class="hero-photo-fade"></div>
-      <div class="hero-photo-caption">We're getting Married!</div>
-    </div>
-    <div class="hero-names-row">
+    <div class="hero-bg img-slot" id="slot-hero"></div>
+    <div class="hero-fade"></div>
+    <div class="hero-top">
       <span class="hero-name" id="hero-name-left"></span>
       <span class="hero-date-num" id="hero-date-num"></span>
       <span class="hero-name" id="hero-name-right"></span>
     </div>
-    <div class="hero-lines">
+    <img class="hero-title hw-reveal" src="assets/wedding-text.png" alt="We're getting Married!">
+    <div class="hero-bottom">
       <div id="hero-time-line"></div>
       <div id="hero-venue-line"></div>
     </div>
@@ -154,9 +152,27 @@
     </div>
 
     <div class="rsvp-form hidden" id="rsvp-form">
-      <div class="side-row">
-        <button class="side-btn" id="btn-side-groom" data-side="groom">신랑측</button>
-        <button class="side-btn" id="btn-side-bride" data-side="bride">신부측</button>
+      <div class="rsvp-field">
+        <span class="rsvp-field-label">어느 측 하객이신가요?</span>
+        <div class="side-row">
+          <button class="side-btn" id="btn-side-groom" data-side="groom">신랑측</button>
+          <button class="side-btn" id="btn-side-bride" data-side="bride">신부측</button>
+        </div>
+      </div>
+      <div class="rsvp-field">
+        <span class="rsvp-field-label">참석 여부</span>
+        <div class="side-row">
+          <button class="side-btn" id="btn-attend-yes" data-attend="yes">참석</button>
+          <button class="side-btn" id="btn-attend-no" data-attend="no">불참석</button>
+        </div>
+      </div>
+      <div class="rsvp-field">
+        <span class="rsvp-field-label">식사 여부</span>
+        <div class="side-row side-row-3">
+          <button class="side-btn" id="btn-meal-o" data-meal="O">식사 함</button>
+          <button class="side-btn" id="btn-meal-x" data-meal="X">식사 안 함</button>
+          <button class="side-btn" id="btn-meal-unsure" data-meal="미정">미정</button>
+        </div>
       </div>
       <input type="text" id="rsvp-name" placeholder="성함">
       <div class="count-row">
@@ -167,6 +183,7 @@
           <button class="step-btn" id="rsvp-inc">＋</button>
         </div>
       </div>
+      <textarea id="rsvp-message" placeholder="신랑신부에게 전하고 싶은 말 (선택)" rows="3"></textarea>
       <button class="solid-btn-block" id="rsvp-submit">참석 의사 전달하기</button>
     </div>
 

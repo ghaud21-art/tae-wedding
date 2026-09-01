@@ -459,12 +459,20 @@ function initRsvp(info) {
   const formEl = document.getElementById('rsvp-form');
   const doneEl = document.getElementById('rsvp-done');
   const nameEl = document.getElementById('rsvp-name');
+  const messageEl = document.getElementById('rsvp-message');
   const countEl = document.getElementById('rsvp-count');
   const summaryEl = document.getElementById('rsvp-summary');
   const groomBtn = document.getElementById('btn-side-groom');
   const brideBtn = document.getElementById('btn-side-bride');
+  const attendYesBtn = document.getElementById('btn-attend-yes');
+  const attendNoBtn = document.getElementById('btn-attend-no');
+  const mealBtns = {
+    O: document.getElementById('btn-meal-o'),
+    X: document.getElementById('btn-meal-x'),
+    미정: document.getElementById('btn-meal-unsure'),
+  };
 
-  let side = null, count = 1;
+  let side = null, attend = null, meal = null, count = 1;
 
   function showState(state) {
     idleEl.classList.toggle('hidden', state !== 'idle');
@@ -493,22 +501,40 @@ function initRsvp(info) {
   groomBtn.addEventListener('click', () => pickSide('groom'));
   brideBtn.addEventListener('click', () => pickSide('bride'));
 
+  function pickAttend(chosen) {
+    attend = chosen;
+    attendYesBtn.classList.toggle('active', attend === 'yes');
+    attendNoBtn.classList.toggle('active', attend === 'no');
+  }
+  attendYesBtn.addEventListener('click', () => pickAttend('yes'));
+  attendNoBtn.addEventListener('click', () => pickAttend('no'));
+
+  function pickMeal(chosen) {
+    meal = chosen;
+    Object.keys(mealBtns).forEach(k => mealBtns[k].classList.toggle('active', k === chosen));
+  }
+  Object.keys(mealBtns).forEach(k => mealBtns[k].addEventListener('click', () => pickMeal(k)));
+
   document.getElementById('rsvp-dec').addEventListener('click', () => { count = Math.max(1, count - 1); countEl.textContent = count; });
   document.getElementById('rsvp-inc').addEventListener('click', () => { count = Math.min(10, count + 1); countEl.textContent = count; });
 
   document.getElementById('rsvp-submit').addEventListener('click', async () => {
     const name = nameEl.value.trim();
-    if (!name) { showToast('성함을 입력해 주세요'); return; }
+    const message = messageEl.value.trim();
     if (!side) { showToast('신랑측/신부측을 선택해 주세요'); return; }
+    if (!attend) { showToast('참석 여부를 선택해 주세요'); return; }
+    if (!meal) { showToast('식사 여부를 선택해 주세요'); return; }
+    if (!name) { showToast('성함을 입력해 주세요'); return; }
     const sideLabel = side === 'groom' ? '신랑측' : '신부측';
-    const summary = `${sideLabel} · ${name} 님 · ${count}명`;
+    const attendLabel = attend === 'yes' ? '참석' : '불참석';
+    const summary = attend === 'yes' ? `${sideLabel} · ${name} 님 · ${count}명 참석` : `${sideLabel} · ${name} 님 · 불참석`;
 
     if (webAppConfigured()) {
       try {
         await fetch(CFG.RSVP_WEBAPP_URL, {
           method: 'POST',
           mode: 'no-cors',
-          body: JSON.stringify({ type: 'rsvp', side: sideLabel, name, count })
+          body: JSON.stringify({ type: 'rsvp', side: sideLabel, attend: attendLabel, meal, name, count, message })
         });
       } catch (e) { /* no-cors 응답은 읽을 수 없어 항상 여기로 오지 않음 — 실패해도 로컬엔 저장 */ }
     }

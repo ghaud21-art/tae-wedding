@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Parisienne&family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Parisienne&family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@300;400;500&display=swap');
 
 :root{
   --accent: #c1a05e;
@@ -10,7 +10,7 @@
 html,body{margin:0;padding:0}
 body{
   background:#efece6;
-  font-family:'Gowun Batang',serif;
+  font-family:'Nanum Myeongjo',serif;
   color:#4a4440;
   word-break:keep-all;
 }
@@ -66,33 +66,27 @@ input{font:inherit}
 .shape-pill{border-radius:999px}
 
 /* ---------- section 1: hero ---------- */
-.sec-hero{background:#fff;padding:26px 20px 34px}
-.hero-frame{
-  position:relative;height:64vh;min-height:420px;max-height:620px;
-  overflow:hidden;background:#f4f1ea;
-}
-.hero-frame .hero-bg{position:absolute;inset:0}
-.hero-photo-fade{
+.sec-hero{position:relative;height:88vh;min-height:600px}
+.sec-hero .hero-bg{position:absolute;inset:0}
+.sec-hero .hero-fade{
   position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(180deg,rgba(0,0,0,0) 62%,rgba(0,0,0,.28) 100%);
+  background:linear-gradient(180deg,rgba(0,0,0,.18) 0%,rgba(0,0,0,0) 22%,rgba(255,255,255,0) 91%,#ffffff 100%);
 }
-.hero-photo-caption{
-  position:absolute;left:0;right:0;bottom:22px;text-align:center;pointer-events:none;
-  font-family:Parisienne,cursive;font-size:34px;color:var(--accent);
-  text-shadow:0 1px 3px rgba(255,255,255,.55),0 4px 18px rgba(255,255,255,.35);
-  animation:softFade 1.6s ease .4s both;
+.sec-hero .hero-title{
+  position:absolute;top:11%;left:50%;transform:translateX(-50%);width:78%;pointer-events:none;
 }
-.hero-names-row{
-  margin-top:24px;display:flex;justify-content:space-between;align-items:center;gap:8px;
-  font-family:'Gowun Batang',serif;font-size:11px;letter-spacing:2px;color:#5c554e;
-  animation:softFade 1.6s ease .7s both;
+.sec-hero .hero-top{
+  position:absolute;top:5.5%;left:22px;right:22px;pointer-events:none;
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  color:#fff;font-family:'Nanum Myeongjo',serif;font-size:11px;letter-spacing:2px;
+  text-shadow:0 1px 10px rgba(0,0,0,.45);animation:softFade 2s ease .5s both;
 }
-.hero-names-row .hero-name{white-space:nowrap}
-.hero-date-num{font-size:17px;letter-spacing:2.5px;color:var(--accent)}
-.hero-lines{
-  margin-top:14px;text-align:center;
-  font-family:'Gowun Batang',serif;font-size:11px;letter-spacing:1.5px;line-height:2;
-  text-transform:uppercase;color:#9c8f85;animation:softFade 1.6s ease .9s both;
+.sec-hero .hero-top .hero-name{white-space:nowrap}
+.sec-hero .hero-date-num{font-size:19px;letter-spacing:3px}
+.sec-hero .hero-bottom{
+  position:absolute;left:0;right:0;bottom:4.5%;text-align:center;pointer-events:none;
+  color:#fff;font-family:'Nanum Myeongjo',serif;font-size:11.5px;letter-spacing:2px;line-height:2.1;
+  text-transform:uppercase;text-shadow:0 1px 10px rgba(0,0,0,.5);animation:softFade 2s ease 2.6s both;
 }
 
 /* ---------- generic section chrome ---------- */
@@ -159,7 +153,7 @@ section{padding:80px 34px}
 /* ---------- section: info / calendar ---------- */
 .sec-info{padding:80px 0}
 .sec-info .head{text-align:center;padding:0 34px}
-.countdown-title{margin-top:38px;font-family:'Gowun Batang',serif;font-size:14.5px;letter-spacing:1px;color:#5c554e}
+.countdown-title{margin-top:38px;font-family:'Nanum Myeongjo',serif;font-size:14.5px;letter-spacing:1px;color:#5c554e}
 .countdown-title b{color:var(--accent);font-weight:700}
 .countdown-row{margin-top:22px;display:flex;justify-content:center;gap:12px}
 .countdown-item{display:flex;flex-direction:column;align-items:center;gap:10px}
@@ -201,11 +195,15 @@ section{padding:80px 34px}
 .rsvp-done{margin-top:34px;background:#fff;border:1px solid #f1ece0;border-radius:16px;padding:30px 24px;font-size:14.5px;line-height:2;color:#5c554e;text-align:center}
 .rsvp-done .heart{color:var(--accent)}
 .rsvp-done .sub{font-family:'Noto Sans KR',sans-serif;font-size:12.5px;color:#9c8f85}
-.rsvp-form{margin-top:34px;background:#fff;border:1px solid #f1ece0;border-radius:16px;padding:28px 24px;display:flex;flex-direction:column;gap:16px;text-align:left;font-family:'Noto Sans KR',sans-serif}
+.rsvp-form{margin-top:34px;background:#fff;border:1px solid #f1ece0;border-radius:16px;padding:28px 24px;display:flex;flex-direction:column;gap:18px;text-align:left;font-family:'Noto Sans KR',sans-serif}
+.rsvp-field{display:flex;flex-direction:column;gap:8px}
+.rsvp-field-label{font-size:12.5px;color:#8a8078;letter-spacing:.5px}
 .side-row{display:flex;gap:8px}
+.side-row-3 .side-btn{font-size:12px;padding:11px 4px}
 .side-btn{flex:1;font-size:13px;padding:11px 0;border-radius:10px;cursor:pointer;border:1px solid #eee2d8;background:#fff;color:#8a8078}
 .side-btn.active{border-color:var(--accent);background:var(--accent);color:#fff}
 .rsvp-form input[type=text]{font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:12px 14px;border:1px solid #eee2d8;border-radius:10px;outline:none;color:#5c554e;width:100%}
+.rsvp-form textarea{font-family:'Noto Sans KR',sans-serif;font-size:13.5px;line-height:1.7;padding:12px 14px;border:1px solid #eee2d8;border-radius:10px;outline:none;color:#5c554e;width:100%;resize:vertical}
 .count-row{display:flex;align-items:center;justify-content:space-between;border:1px solid #eee2d8;border-radius:10px;padding:8px 14px}
 .count-row .label{font-size:13px;color:#8a8078;white-space:nowrap}
 .count-row .stepper{display:flex;align-items:center;gap:14px}
@@ -224,7 +222,7 @@ section{padding:80px 34px}
 .account-lead{margin:32px 0 0;font-size:13.5px;line-height:2;color:#8a8078;text-align:center}
 .account-groups{margin-top:32px;display:flex;flex-direction:column;gap:12px}
 .account-group{background:#fff;border:1px solid #f1ece0;border-radius:14px;overflow:hidden;text-align:left}
-.account-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;background:none;border:none;padding:18px 22px;cursor:pointer;font-family:'Gowun Batang',serif;font-size:14.5px;color:#5c554e}
+.account-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;background:none;border:none;padding:18px 22px;cursor:pointer;font-family:'Nanum Myeongjo',serif;font-size:14.5px;color:#5c554e}
 .account-toggle .arrow{color:var(--accent);font-size:12px}
 .account-items{padding:0 22px 18px;display:flex;flex-direction:column;gap:12px}
 .account-row{display:flex;justify-content:space-between;align-items:center;gap:10px;font-family:'Noto Sans KR',sans-serif}
