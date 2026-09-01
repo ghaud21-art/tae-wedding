@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Parisienne&family=Noto+Sans+KR:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Parisienne&family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@300;400;500&display=swap');
 
 :root{
   --accent: #c1a05e;
@@ -135,6 +135,7 @@ section{padding:80px 34px}
 /* ---------- section: gallery ---------- */
 .sec-gallery{padding:80px 0}
 .sec-gallery .head{padding:0 34px}
+.sec-gallery .hscroll{margin-top:40px}
 .gallery-item{width:280px;height:373px}
 .hscroll-hint{margin-top:18px;text-align:center;font-family:'Noto Sans KR',sans-serif;font-weight:300;font-size:11.5px;letter-spacing:2px;color:#b8aea3}
 
@@ -153,6 +154,7 @@ section{padding:80px 34px}
 .sec-info{padding:80px 0}
 .sec-info .head{text-align:center;padding:0 34px}
 .info-card{margin:40px auto 0;max-width:290px;background:#fff;border-radius:16px;padding:26px 22px;box-shadow:0 4px 18px rgba(90,75,60,.06)}
+.sec-info .hscroll{margin-top:52px}
 .info-date{font-size:15px;letter-spacing:2px;color:#5c554e;text-align:center}
 .info-time{margin-top:4px;font-family:'Noto Sans KR',sans-serif;font-weight:300;font-size:13px;color:#9c8f85;text-align:center}
 .calendar-grid{margin-top:20px;display:grid;grid-template-columns:repeat(7,1fr);gap:6px;font-family:'Noto Sans KR',sans-serif;font-size:12px;color:#8a8078}
@@ -231,7 +233,7 @@ section{padding:80px 34px}
   font-family:'Noto Sans KR',sans-serif;font-size:12.5px;letter-spacing:1px;color:#fff;background:var(--accent);
   border:none;border-radius:999px;padding:13px 28px;cursor:pointer;box-shadow:0 6px 16px var(--accent-shadow);
 }
-.ending-sign{margin-top:50px;font-family:Parisienne,cursive;font-size:17px;color:#d9c8bc}
+.ending-sign{margin-top:50px;font-family:'Nanum Pen Script',Parisienne,cursive;font-size:22px;letter-spacing:1px;color:#c7b389}
 
 /* ---------- toast ---------- */
 #toast{
