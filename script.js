@@ -59,6 +59,15 @@ function driveImageUrl(driveId, width) {
   return `https://drive.google.com/thumbnail?id=${encodeURIComponent(driveId.trim())}&sz=w${width || 1200}`;
 }
 
+/* 드라이브가 아닌 로컬/URL 이미지를 슬롯에 넣을 때 사용 */
+function setImgSlotSrc(slotEl, src, altText) {
+  slotEl.innerHTML = '';
+  const img = document.createElement('img');
+  img.src = src;
+  img.alt = altText || '';
+  slotEl.appendChild(img);
+}
+
 function setImgSlot(slotEl, driveId, altText) {
   slotEl.innerHTML = '';
   if (!driveId || !driveId.trim()) {
@@ -171,7 +180,7 @@ function renderPage(data) {
   const { info, interviews, galleryIds, story, notices, accountGroups } = data;
 
   // 색상
-  const accent = info.accentColor && /^#[0-9a-fA-F]{3,6}$/.test(info.accentColor) ? info.accentColor : '#d9ab41';
+  const accent = info.accentColor && /^#[0-9a-fA-F]{3,6}$/.test(info.accentColor) ? info.accentColor : '#c1a05e';
   document.documentElement.style.setProperty('--accent', accent);
   document.documentElement.style.setProperty('--accent-soft', lighten(accent, 0.45));
   document.documentElement.style.setProperty('--accent-shadow', hexToRgba(accent, 0.35));
@@ -183,16 +192,31 @@ function renderPage(data) {
   const endingId = (photos.ending && photos.ending[0]) || info.endingImageId;
   const finalGalleryIds = (photos.gallery && photos.gallery.length) ? photos.gallery : galleryIds;
 
-  // 1. 히어로
-  setImgSlot(document.getElementById('slot-hero'), heroId, '메인 웨딩 사진');
-  document.getElementById('hero-groom').textContent = info.groomName || '신랑';
-  document.getElementById('hero-bride').textContent = info.brideName || '신부';
+  // 1. 히어로 — 사진 (드라이브 > 시트 ID > 저장소 기본 사진 순)
+  const heroSlot = document.getElementById('slot-hero');
+  if (heroId) setImgSlot(heroSlot, heroId, '메인 웨딩 사진');
+  else setImgSlotSrc(heroSlot, 'assets/hero.jpg', '메인 웨딩 사진');
+
+  // 히어로 텍스트 오버레이 (영문): 상단 이름/날짜, 하단 일시/장소
   const weddingDate = parseWeddingDate(info.weddingDate, info.weddingTime);
-  const dateLine = weddingDate
-    ? `${weddingDate.getFullYear()}. ${weddingDate.getMonth() + 1}. ${weddingDate.getDate()} ${WEEKDAYS[weddingDate.getDay()]} ${formatKoreanTime(info.weddingTime).replace(/^./, c => c)}`.replace('오전', 'AM').replace('오후', 'PM')
-    : '';
-  document.getElementById('hero-date').textContent = dateLine;
-  document.getElementById('hero-venue').textContent = info.venueName || '';
+  const upper = s => (s || '').toUpperCase();
+  document.getElementById('hero-name-left').textContent = upper(info.heroGroomEn) || info.groomName || '';
+  document.getElementById('hero-name-right').textContent = upper(info.heroBrideEn) || info.brideName || '';
+  if (weddingDate) {
+    const y = weddingDate.getFullYear();
+    const mm = String(weddingDate.getMonth() + 1).padStart(2, '0');
+    const dd = String(weddingDate.getDate()).padStart(2, '0');
+    document.getElementById('hero-date-num').textContent = `${y}.${mm}.${dd}`;
+    const WEEKDAYS_EN = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+    const MONTHS_EN = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
+    const h = weddingDate.getHours(), min = weddingDate.getMinutes();
+    const h12 = h % 12 || 12;
+    const ampm = h < 12 ? 'AM' : 'PM';
+    const timeStr = min ? `${h12}:${String(min).padStart(2, '0')}` : `${h12}:00`;
+    document.getElementById('hero-time-line').textContent =
+      `${WEEKDAYS_EN[weddingDate.getDay()]}, ${MONTHS_EN[weddingDate.getMonth()]} ${weddingDate.getDate()}, ${y} AT ${timeStr} ${ampm}`;
+  }
+  document.getElementById('hero-venue-line').textContent = upper(info.heroVenueEn) || info.venueName || '';
 
   // 2. 인사말
   document.getElementById('greeting-text').innerHTML = nl2br(info.greetingText);

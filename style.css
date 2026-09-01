@@ -1,9 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Parisienne&family=Noto+Sans+KR:wght@300;400;500&display=swap');
 
 :root{
-  --accent: #d9ab41;
-  --accent-soft: #ecd9a0;
-  --accent-shadow: rgba(217,177,79,.35);
+  --accent: #c1a05e;
+  --accent-soft: #e5d6b7;
+  --accent-shadow: rgba(193,160,94,.30);
 }
 
 *{box-sizing:border-box}
@@ -23,7 +23,7 @@ input{font:inherit}
 #page{
   max-width:430px;
   margin:0 auto;
-  background:linear-gradient(180deg,#fdfcf9 0%,#fcf8ee 30%,#fbf4e2 55%,#faf0d8 80%,#fdf8ec 100%);
+  background:linear-gradient(180deg,#ffffff 0%,#fdfcf9 35%,#faf8f3 70%,#fdfcfa 100%);
   box-shadow:0 0 40px rgba(90,75,60,.12);
   overflow:hidden;
   min-height:100vh;
@@ -70,21 +70,24 @@ input{font:inherit}
 .sec-hero .hero-bg{position:absolute;inset:0}
 .sec-hero .hero-fade{
   position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(180deg,rgba(253,252,249,.25) 0%,rgba(253,252,249,0) 30%,rgba(253,252,249,0) 55%,rgba(253,252,249,.92) 88%,#fdfcf9 100%);
+  background:linear-gradient(180deg,rgba(0,0,0,.18) 0%,rgba(0,0,0,0) 22%,rgba(255,255,255,0) 91%,#ffffff 100%);
 }
 .sec-hero .hero-title{
-  position:absolute;top:7%;left:50%;transform:translateX(-50%);width:78%;pointer-events:none;
+  position:absolute;top:11%;left:50%;transform:translateX(-50%);width:78%;pointer-events:none;
 }
-.sec-hero .hero-caption{
-  position:absolute;left:0;right:0;bottom:26px;text-align:center;pointer-events:none;
-  animation:softFade 2s ease 2.6s both;
+.sec-hero .hero-top{
+  position:absolute;top:5.5%;left:22px;right:22px;pointer-events:none;
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  color:#fff;font-family:'Gowun Batang',serif;font-size:11px;letter-spacing:2px;
+  text-shadow:0 1px 10px rgba(0,0,0,.45);animation:softFade 2s ease .5s both;
 }
-.sec-hero .hero-names{font-size:20px;letter-spacing:6px;color:#5a5148}
-.sec-hero .hero-names .and{color:#e0c470;font-size:15px}
-.sec-hero .hero-date,.sec-hero .hero-venue{
-  margin-top:10px;font-family:'Noto Sans KR',sans-serif;font-weight:300;font-size:13px;letter-spacing:2px;color:#8a8078;
+.sec-hero .hero-top .hero-name{white-space:nowrap}
+.sec-hero .hero-date-num{font-size:19px;letter-spacing:3px}
+.sec-hero .hero-bottom{
+  position:absolute;left:0;right:0;bottom:4.5%;text-align:center;pointer-events:none;
+  color:#fff;font-family:'Gowun Batang',serif;font-size:11.5px;letter-spacing:2px;line-height:2.1;
+  text-transform:uppercase;text-shadow:0 1px 10px rgba(0,0,0,.5);animation:softFade 2s ease 2.6s both;
 }
-.sec-hero .hero-venue{margin-top:3px}
 
 /* ---------- generic section chrome ---------- */
 section{padding:80px 34px}
@@ -215,7 +218,7 @@ section{padding:80px 34px}
 /* ---------- section: ending ---------- */
 .sec-ending{position:relative;padding:0}
 .ending-photo-wrap{height:520px;position:relative}
-.ending-fade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,#faf2dc 0%,rgba(250,242,220,0) 22%,rgba(252,246,230,0) 60%,rgba(252,247,232,.9) 92%,#fcf7e8 100%)}
+.ending-fade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,#faf8f3 0%,rgba(250,248,243,0) 22%,rgba(253,252,250,0) 60%,rgba(253,252,250,.9) 92%,#fdfcfa 100%)}
 .ending-body{padding:10px 34px 70px;text-align:center}
 .ending-title{font-family:Parisienne,cursive;font-size:26px;color:var(--accent)}
 .ending-lead{margin:20px 0 0;font-size:14px;line-height:2.1;color:#6e675f}

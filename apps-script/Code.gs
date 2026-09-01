@@ -79,15 +79,34 @@ function doPost(e) {
 
 function setupAll() {
   fixAccountsTab();
+  applyRealInfo();
   colorEditableCells();
-  setAccentGold();
 }
 
-// v2 옐로우 리디자인의 포인트 색을 설정 탭에 기록합니다 (한 번 실행용).
-// 이후 시트에서 accentColor를 직접 바꿨다면, setupAll을 다시 실행할 때
-// 이 값으로 되돌아가니 이 호출을 지우고 실행하세요.
-function setAccentGold() {
-  SpreadsheetApp.getActiveSpreadsheet().getSheetByName('설정').getRange('B18').setValue('#d9ab41');
+// 실제 결혼식 정보와 v2 디자인 값을 설정 탭에 기록합니다 (키 기준으로 찾아 씀).
+// ⚠ 시트에서 이 키들을 직접 수정한 뒤에는, setupAll을 다시 실행하면 아래 값으로
+// 되돌아가니 이 함수 호출을 지우고 실행하세요.
+function applyRealInfo() {
+  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('설정');
+  const vals = {
+    groomName: '김태경',
+    brideName: '김지영',
+    weddingDate: '2027-01-03',
+    weddingTime: '16:30',
+    venueName: '메리빌리아 더 프레스티지',
+    venueAddress: '경기도 수원시 (정확한 주소로 바꿔주세요)',
+    accentColor: '#c1a05e',
+    heroGroomEn: 'KIM TAEKYEONG',
+    heroBrideEn: 'KIM JIYOUNG',
+    heroVenueEn: 'MERRYVILIA THE PRESTIGE, SUWON',
+  };
+  const last = sh.getLastRow();
+  const keys = sh.getRange(1, 1, last, 1).getValues().map(function (r) { return String(r[0]).trim(); });
+  Object.keys(vals).forEach(function (k) {
+    const idx = keys.indexOf(k);
+    if (idx >= 0) sh.getRange(idx + 1, 2).setValue(vals[k]);
+    else sh.appendRow([k, vals[k]]);
+  });
 }
 
 function fixAccountsTab() {
