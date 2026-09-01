@@ -80,6 +80,14 @@ function doPost(e) {
 function setupAll() {
   fixAccountsTab();
   colorEditableCells();
+  setAccentGold();
+}
+
+// v2 옐로우 리디자인의 포인트 색을 설정 탭에 기록합니다 (한 번 실행용).
+// 이후 시트에서 accentColor를 직접 바꿨다면, setupAll을 다시 실행할 때
+// 이 값으로 되돌아가니 이 호출을 지우고 실행하세요.
+function setAccentGold() {
+  SpreadsheetApp.getActiveSpreadsheet().getSheetByName('설정').getRange('B18').setValue('#d9ab41');
 }
 
 function fixAccountsTab() {
