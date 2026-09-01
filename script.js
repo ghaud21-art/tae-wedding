@@ -11,7 +11,8 @@ const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
  * 신랑신부가 실제로 고치는 값들은 전부 "설정" 탭 안에 있습니다. */
 
 async function fetchSheetRows(sheetName) {
-  const url = `https://docs.google.com/spreadsheets/d/${CFG.SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+  // headers=1: 첫 행을 항상 헤더로 고정 (없으면 gviz가 헤더 행 수를 제멋대로 추측해 데이터가 잘림)
+  const url = `https://docs.google.com/spreadsheets/d/${CFG.SHEET_ID}/gviz/tq?tqx=out:json&headers=1&sheet=${encodeURIComponent(sheetName)}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error('시트를 불러오지 못했습니다: ' + sheetName);
   const text = await res.text();
@@ -24,7 +25,7 @@ async function fetchSheetRows(sheetName) {
       return val == null ? '' : String(val);
     })
   );
-  return rows.slice(1).filter(r => r.some(v => v !== '')); // 헤더 행 제외 + 빈 행 제외
+  return rows.filter(r => r.some(v => v !== '')); // 빈 행 제외 (헤더는 gviz가 이미 분리)
 }
 
 function rowsToMap(rows) {
