@@ -76,15 +76,23 @@ function setImgSlot(slotEl, driveId, altText) {
   slotEl.appendChild(img);
 }
 
-function lighten(hex, amt) {
-  const c = (hex || '#e9a8bc').replace('#', '');
+function hexToChannels(hex) {
+  const c = (hex || '#d9ab41').replace('#', '');
   const num = parseInt(c.length === 3 ? c.split('').map(x => x + x).join('') : c, 16);
-  if (Number.isNaN(num)) return '#f3d3dd';
-  let r = (num >> 16) & 0xff, g = (num >> 8) & 0xff, b = num & 0xff;
-  r = Math.min(255, Math.round(r + (255 - r) * amt));
-  g = Math.min(255, Math.round(g + (255 - g) * amt));
-  b = Math.min(255, Math.round(b + (255 - b) * amt));
-  return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+  if (Number.isNaN(num)) return null;
+  return [(num >> 16) & 0xff, (num >> 8) & 0xff, num & 0xff];
+}
+
+function lighten(hex, amt) {
+  const ch = hexToChannels(hex);
+  if (!ch) return '#ecd9a0';
+  return '#' + ch.map(x => Math.min(255, Math.round(x + (255 - x) * amt)).toString(16).padStart(2, '0')).join('');
+}
+
+function hexToRgba(hex, alpha) {
+  const ch = hexToChannels(hex);
+  if (!ch) return `rgba(217,177,79,${alpha})`;
+  return `rgba(${ch[0]},${ch[1]},${ch[2]},${alpha})`;
 }
 
 function nl2br(str) {
@@ -163,9 +171,10 @@ function renderPage(data) {
   const { info, interviews, galleryIds, story, notices, accountGroups } = data;
 
   // 색상
-  const accent = info.accentColor && /^#[0-9a-fA-F]{3,6}$/.test(info.accentColor) ? info.accentColor : '#e9a8bc';
+  const accent = info.accentColor && /^#[0-9a-fA-F]{3,6}$/.test(info.accentColor) ? info.accentColor : '#d9ab41';
   document.documentElement.style.setProperty('--accent', accent);
   document.documentElement.style.setProperty('--accent-soft', lighten(accent, 0.45));
+  document.documentElement.style.setProperty('--accent-shadow', hexToRgba(accent, 0.35));
 
   // 드라이브 폴더에 사진이 있으면 그것을 우선 사용, 없으면 시트에 적힌 파일 ID 사용
   const photos = data.photos || {};
