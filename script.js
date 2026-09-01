@@ -578,7 +578,23 @@ async function loadData() {
   return { info, interviews, galleryIds, story, notices, accountGroups, photos };
 }
 
+function initVariantSwitcher() {
+  const bar = document.getElementById('variant-bar');
+  if (!bar) return;
+  const buttons = Array.from(bar.querySelectorAll('.v-btn'));
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.body.classList.remove('variant-clean', 'variant-logo', 'variant-font');
+      const v = btn.dataset.variant;
+      if (v !== 'current') document.body.classList.add('variant-' + v);
+      buttons.forEach(b => b.classList.toggle('active', b === btn));
+    });
+  });
+  document.body.classList.add('has-variant-bar');
+}
+
 (async function init() {
+  initVariantSwitcher();
   try {
     if (!CFG.SHEET_ID || CFG.SHEET_ID.includes('REPLACE_WITH')) {
       throw new Error('config.js에 구글 시트 ID가 설정되지 않았습니다.');
