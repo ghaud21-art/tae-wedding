@@ -33,6 +33,24 @@ function rowsToMap(rows) {
   return map;
 }
 
+function webAppConfigured() {
+  return CFG.RSVP_WEBAPP_URL && !CFG.RSVP_WEBAPP_URL.includes('REPLACE_WITH');
+}
+
+/* 드라이브 사진 폴더(메인/인터뷰/마무리/갤러리) 목록을 Apps Script 웹앱에서 받아옵니다.
+ * 실패하면 null을 돌려주고, 시트에 적힌 파일 ID로 대체합니다. */
+async function fetchDrivePhotos() {
+  if (!webAppConfigured()) return null;
+  try {
+    const res = await fetch(CFG.RSVP_WEBAPP_URL);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (e) {
+    console.warn('드라이브 사진 목록을 불러오지 못했습니다', e);
+    return null;
+  }
+}
+
 /* ---------------- 유틸 ---------------- */
 
 function driveImageUrl(driveId, width) {
@@ -148,8 +166,15 @@ function renderPage(data) {
   document.documentElement.style.setProperty('--accent', accent);
   document.documentElement.style.setProperty('--accent-soft', lighten(accent, 0.45));
 
+  // 드라이브 폴더에 사진이 있으면 그것을 우선 사용, 없으면 시트에 적힌 파일 ID 사용
+  const photos = data.photos || {};
+  const heroId = (photos.hero && photos.hero[0]) || info.heroImageId;
+  const interviewId = (photos.interview && photos.interview[0]) || info.interviewImageId;
+  const endingId = (photos.ending && photos.ending[0]) || info.endingImageId;
+  const finalGalleryIds = (photos.gallery && photos.gallery.length) ? photos.gallery : galleryIds;
+
   // 1. 히어로
-  setImgSlot(document.getElementById('slot-hero'), info.heroImageId, '메인 웨딩 사진');
+  setImgSlot(document.getElementById('slot-hero'), heroId, '메인 웨딩 사진');
   document.getElementById('hero-groom').textContent = info.groomName || '신랑';
   document.getElementById('hero-bride').textContent = info.brideName || '신부';
   const weddingDate = parseWeddingDate(info.weddingDate, info.weddingTime);
@@ -180,7 +205,7 @@ function renderPage(data) {
   });
 
   // 4. 인터뷰
-  setImgSlot(document.getElementById('slot-interview'), info.interviewImageId, '인터뷰 사진');
+  setImgSlot(document.getElementById('slot-interview'), interviewId, '인터뷰 사진');
   const interviewList = document.getElementById('interview-list');
   interviewList.innerHTML = interviews.map(qa => `
     <div>
@@ -195,17 +220,13 @@ function renderPage(data) {
     interviewBtn.textContent = open ? '인터뷰 접기' : '인터뷰 읽어보기';
   });
 
-  // 5. 게스트스냅
-  if (info.snapShareUrl) {
-    document.getElementById('snap-link').href = info.snapShareUrl;
-  } else {
-    document.getElementById('sec-snap').classList.add('hidden');
-  }
+  // 5. 게스트스냅 — 웹앱이 연결돼 있으면 이 사이트에서 바로 업로드, 아니면 외부 링크
+  initSnapUpload(info);
 
   // 6. 갤러리
   const galleryScroll = document.getElementById('gallery-scroll');
   galleryScroll.innerHTML = '';
-  galleryIds.forEach((gid, i) => {
+  finalGalleryIds.forEach((gid, i) => {
     const wrap = document.createElement('div');
     wrap.className = 'gallery-item';
     const slot = document.createElement('div');
@@ -298,7 +319,7 @@ function renderPage(data) {
   });
 
   // 12. 마무리
-  setImgSlot(document.getElementById('slot-ending'), info.endingImageId, '마무리 사진');
+  setImgSlot(document.getElementById('slot-ending'), endingId, '마무리 사진');
   document.getElementById('ending-sign').textContent = weddingDate
     ? `${info.groomName} & ${info.brideName} · ${weddingDate.getFullYear()}. ${weddingDate.getMonth() + 1}. ${weddingDate.getDate()}`
     : `${info.groomName} & ${info.brideName}`;
@@ -318,6 +339,61 @@ function renderPage(data) {
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('on'); io.unobserve(e.target); } });
   }, { threshold: 0.12 });
   document.querySelectorAll('.rv').forEach(el => io.observe(el));
+}
+
+/* ---------------- 게스트스냅 업로드 ---------------- */
+
+function initSnapUpload(info) {
+  const section = document.getElementById('sec-snap');
+  const linkEl = document.getElementById('snap-link');
+  const uploadBtn = document.getElementById('btn-snap-upload');
+  const fileInput = document.getElementById('snap-file-input');
+
+  const canUpload = webAppConfigured();
+  const hasLink = !!info.snapShareUrl;
+
+  if (!canUpload && !hasLink) { section.classList.add('hidden'); return; }
+
+  if (hasLink) linkEl.href = info.snapShareUrl;
+  else linkEl.classList.add('hidden');
+
+  if (!canUpload) { uploadBtn.classList.add('hidden'); return; }
+
+  uploadBtn.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', async () => {
+    const files = Array.from(fileInput.files || []);
+    if (!files.length) return;
+    uploadBtn.disabled = true;
+    let sent = 0;
+    for (const file of files) {
+      if (file.size > 15 * 1024 * 1024) { showToast(`${file.name}은(는) 15MB를 넘어 건너뛰었습니다`); continue; }
+      uploadBtn.textContent = `사진 보내는 중… (${sent + 1}/${files.length})`;
+      try {
+        const base64 = await fileToBase64(file);
+        await fetch(CFG.RSVP_WEBAPP_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          body: JSON.stringify({ type: 'photo', name: file.name, mimeType: file.type, base64 })
+        });
+        sent++;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    uploadBtn.disabled = false;
+    uploadBtn.textContent = '사진 보내기';
+    fileInput.value = '';
+    showToast(sent > 0 ? `사진 ${sent}장을 보냈습니다. 감사합니다 ♥` : '사진 전송에 실패했습니다');
+  });
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
 function escapeHtml(str) {
@@ -376,12 +452,12 @@ function initRsvp(info) {
     const sideLabel = side === 'groom' ? '신랑측' : '신부측';
     const summary = `${sideLabel} · ${name} 님 · ${count}명`;
 
-    if (CFG.RSVP_WEBAPP_URL && !CFG.RSVP_WEBAPP_URL.includes('REPLACE_WITH')) {
+    if (webAppConfigured()) {
       try {
         await fetch(CFG.RSVP_WEBAPP_URL, {
           method: 'POST',
           mode: 'no-cors',
-          body: JSON.stringify({ side: sideLabel, name, count })
+          body: JSON.stringify({ type: 'rsvp', side: sideLabel, name, count })
         });
       } catch (e) { /* no-cors 응답은 읽을 수 없어 항상 여기로 오지 않음 — 실패해도 로컬엔 저장 */ }
     }
@@ -405,13 +481,14 @@ function groupAccountRows(rows) {
 }
 
 async function loadData() {
-  const [settingsRows, interviewRows, galleryRows, storyRows, noticeRows, accountRows] = await Promise.all([
+  const [settingsRows, interviewRows, galleryRows, storyRows, noticeRows, accountRows, photos] = await Promise.all([
     fetchSheetRows('설정'),
     fetchSheetRows('인터뷰'),
     fetchSheetRows('갤러리'),
     fetchSheetRows('우리의시간'),
     fetchSheetRows('안내사항'),
     fetchSheetRows('계좌번호'),
+    fetchDrivePhotos(),
   ]);
 
   const info = rowsToMap(settingsRows);
@@ -421,7 +498,7 @@ async function loadData() {
   const notices = noticeRows.map(r => ({ en: r[1] || '', title: r[2] || '', desc: r[3] || '' }));
   const accountGroups = groupAccountRows(accountRows);
 
-  return { info, interviews, galleryIds, story, notices, accountGroups };
+  return { info, interviews, galleryIds, story, notices, accountGroups, photos };
 }
 
 (async function init() {

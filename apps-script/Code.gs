@@ -1,33 +1,132 @@
 /**
  * 청첩장 구글 시트용 Apps Script.
  *
+ * 기능:
+ *  - doGet  : 드라이브 사진 폴더(메인/인터뷰/마무리/갤러리)의 사진 목록을 사이트에 전달
+ *             → 폴더에 사진을 올리기만 하면 사이트에 자동으로 반영됩니다.
+ *  - doPost : 참석 여부(RSVP)를 "참석여부" 탭에 저장 + 하객이 보낸 사진(게스트스냅)을
+ *             드라이브 "게스트스냅" 폴더에 저장
+ *  - setupAll : 계좌번호 6명(신랑/신랑 부모/신부/신부 부모) 채우기 + 편집 칸 노란색 칠하기
+ *               (다른 탭 내용은 건드리지 않아 언제 실행해도 안전)
+ *  - setupSheet : 탭 7개를 처음부터 다시 만들기 (⚠ 기존 내용이 초기값으로 덮어써짐)
+ *
  * 사용법:
- * 1. 구글 시트에서 [확장 프로그램] > [Apps Script]를 엽니다.
- * 2. 기본 코드를 모두 지우고 이 파일 내용을 그대로 붙여넣습니다.
- * 3. 저장(💾) 후, 상단 함수 선택 드롭다운에서 setupSheet를 고르고 [실행]을 한 번 눌러
- *    탭 7개(설정/인터뷰/갤러리/우리의시간/안내사항/계좌번호/참석여부)를 만들고 초기 내용을 채웁니다.
- *    이때 신랑신부가 고쳐야 하는 칸에는 노란색이 자동으로 칠해집니다.
- *    (처음 실행 시 권한 승인 화면이 뜨면 본인 계정으로 승인하세요.)
- * 4. 이후 참석 여부 저장을 쓰려면 [배포] > [새 배포] > 유형: 웹 앱 > 액세스: 모든 사용자로 배포하고,
- *    나오는 URL을 config.js의 RSVP_WEBAPP_URL에 넣으세요.
- *
- * setupSheet는 처음 한 번만 실행하면 됩니다. 다시 실행하면 각 탭 내용이
- * 아래 초기값으로 덮어써지니, 이미 내용을 수정했다면 다시 실행하지 마세요.
- *
- * 이미 탭을 만들고 내용도 수정한 뒤에 노란색 칠만 새로 하고 싶다면, 함수
- * 드롭다운에서 colorEditableCells를 골라 실행하세요 — 이 함수는 색만 칠하고
- * 셀 내용은 전혀 건드리지 않아 언제 실행해도 안전합니다.
+ *  1. 함수 드롭다운에서 setupAll 선택 → [실행]
+ *  2. [배포] > [새 배포] > 유형: 웹 앱 > 나: 나로 실행 / 액세스: 모든 사용자 → [배포]
+ *  3. 나온 웹 앱 URL을 config.js의 RSVP_WEBAPP_URL에 붙여넣기
+ *  ※ 코드를 고친 뒤에는 [배포] > [배포 관리] > 연필 아이콘 > 버전: 새 버전 → [배포]로 갱신해야 반영됩니다.
  */
 
+const PHOTOS_FOLDER_ID = '1OPxzsGfkG-2rL7sUQ3xsIJNfyv1wc1xr'; // "태경님 청첩장 사진" 폴더
+const SECTION_FOLDERS = { hero: '메인', interview: '인터뷰', ending: '마무리', gallery: '갤러리' };
+const SNAP_FOLDER_NAME = '게스트스냅';
+
+/* ---------- 사진 목록 내려주기 (사이트가 GET으로 호출) ---------- */
+
+function doGet(e) {
+  const root = DriveApp.getFolderById(PHOTOS_FOLDER_ID);
+  const result = {};
+  Object.keys(SECTION_FOLDERS).forEach(function (key) {
+    result[key] = listImageIds(root, SECTION_FOLDERS[key]);
+  });
+  return ContentService
+    .createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function listImageIds(root, folderName) {
+  const it = root.getFoldersByName(folderName);
+  if (!it.hasNext()) return [];
+  const files = it.next().getFiles();
+  const items = [];
+  while (files.hasNext()) {
+    const f = files.next();
+    if (String(f.getMimeType()).indexOf('image/') === 0) {
+      items.push({ id: f.getId(), name: f.getName() });
+    }
+  }
+  items.sort(function (a, b) { return a.name.localeCompare(b.name); }); // 파일명 순 = 갤러리 순서
+  return items.map(function (x) { return x.id; });
+}
+
+/* ---------- RSVP 저장 + 게스트스냅 사진 수신 (사이트가 POST로 호출) ---------- */
+
 function doPost(e) {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('참석여부');
   const data = JSON.parse(e.postData.contents);
-  const timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm');
-  sheet.appendRow([timestamp, data.side || '', data.name || '', data.count || '']);
+
+  if (data.type === 'photo') {
+    const root = DriveApp.getFolderById(PHOTOS_FOLDER_ID);
+    let folder;
+    const it = root.getFoldersByName(SNAP_FOLDER_NAME);
+    folder = it.hasNext() ? it.next() : root.createFolder(SNAP_FOLDER_NAME);
+    const stamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMMdd_HHmmss');
+    const name = stamp + '_' + (data.name || 'guest.jpg');
+    const blob = Utilities.newBlob(Utilities.base64Decode(data.base64), data.mimeType || 'image/jpeg', name);
+    folder.createFile(blob);
+  } else {
+    // 기본: 참석 여부 저장
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('참석여부');
+    const timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm');
+    sheet.appendRow([timestamp, data.side || '', data.name || '', data.count || '']);
+  }
+
   return ContentService
     .createTextOutput(JSON.stringify({ result: 'ok' }))
     .setMimeType(ContentService.MimeType.JSON);
 }
+
+/* ---------- 안전한 정리 함수: 계좌 6명 + 노란색 칠 (다른 내용은 안 건드림) ---------- */
+
+function setupAll() {
+  fixAccountsTab();
+  colorEditableCells();
+}
+
+function fixAccountsTab() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sh = ss.getSheetByName('계좌번호');
+  if (!sh) return;
+  const rows = [
+    ['신랑측', '김민준', '국민은행', '123-45-6789-012'],
+    ['신랑측', '김영호 (부)', '신한은행', '110-234-567890'],
+    ['신랑측', '박정숙 (모)', '우리은행', '1234-56-789012'],
+    ['신부측', '이서연', '카카오뱅크', '3333-01-2345678'],
+    ['신부측', '이상원 (부)', '국민은행', '456-78-901234'],
+    ['신부측', '최미경 (모)', '우리은행', '1002-345-678901'],
+  ];
+  const last = sh.getLastRow();
+  if (last > 1) sh.getRange(2, 1, last - 1, 4).clearContent();
+  sh.getRange(2, 1, rows.length, 4).setValues(rows);
+}
+
+/**
+ * 신랑신부가 실제로 고쳐야 하는 칸에 노란색 배경을 칠합니다.
+ * 셀 값은 전혀 바꾸지 않으므로 언제 실행해도 안전합니다.
+ */
+function colorEditableCells() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const EDITABLE_COLOR = '#fff2cc';
+
+  function colorCols(sheetName, cols) {
+    const sh = ss.getSheetByName(sheetName);
+    if (!sh) return;
+    const lastRow = sh.getLastRow();
+    if (lastRow < 2) return;
+    cols.forEach(function (col) {
+      sh.getRange(2, col, lastRow - 1, 1).setBackground(EDITABLE_COLOR);
+    });
+  }
+
+  colorCols('설정', [2]);            // 값
+  colorCols('인터뷰', [2, 3]);        // 질문, 답변
+  colorCols('갤러리', [2]);           // (예비용) 드라이브파일ID
+  colorCols('우리의시간', [2, 3, 4]);  // 날짜, 제목, 설명
+  colorCols('안내사항', [2, 3, 4]);    // 영문, 제목, 설명
+  colorCols('계좌번호', [1, 2, 3, 4]); // 전체
+  // 참석여부 탭은 자동 기록용이라 칠하지 않습니다.
+}
+
+/* ---------- 전체 초기화 (⚠ 모든 탭이 초기값으로 덮어써짐 — 필요할 때만) ---------- */
 
 function setupSheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -108,42 +207,8 @@ function setupSheet() {
 
   fillSheet('참석여부', ['시간', '구분', '성함', '인원'], []);
 
-  // 탭 순서를 편집하기 좋게 정리: 설정을 맨 앞으로
   ss.setActiveSheet(settings);
   ss.moveActiveSheet(1);
 
   colorEditableCells();
-
-  const legacy = ss.getSheetByName('Sheet1');
-  if (legacy) {
-    Logger.log('기존 Sheet1(단일 표) 탭은 그대로 남아 있습니다. 새 탭 내용을 확인한 뒤 직접 삭제해도 됩니다.');
-  }
-}
-
-/**
- * 신랑신부가 실제로 고쳐야 하는 칸에 노란색 배경을 칠합니다.
- * 셀 값은 전혀 바꾸지 않으므로, 이미 내용을 채운 뒤에 실행해도 안전합니다.
- * 행을 추가/삭제한 뒤 다시 실행하면 새로 늘어나거나 줄어든 범위에도 맞게 다시 칠해집니다.
- */
-function colorEditableCells() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const EDITABLE_COLOR = '#fff2cc';
-
-  function colorCols(sheetName, cols) {
-    const sh = ss.getSheetByName(sheetName);
-    if (!sh) return;
-    const lastRow = sh.getLastRow();
-    if (lastRow < 2) return; // 데이터 행이 없으면 칠할 것도 없음
-    cols.forEach(function (col) {
-      sh.getRange(2, col, lastRow - 1, 1).setBackground(EDITABLE_COLOR);
-    });
-  }
-
-  colorCols('설정', [2]);           // 값
-  colorCols('인터뷰', [2, 3]);       // 질문, 답변
-  colorCols('갤러리', [2]);          // 드라이브파일ID
-  colorCols('우리의시간', [2, 3, 4]); // 날짜, 제목, 설명
-  colorCols('안내사항', [2, 3, 4]);   // 영문, 제목, 설명
-  colorCols('계좌번호', [1, 2, 3, 4]); // 구분, 예금주, 은행, 계좌번호
-  // 참석여부 탭은 하객 제출로 자동 채워지는 곳이라 칠하지 않습니다.
 }
