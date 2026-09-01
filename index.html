@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>태경 ♥ 지영 모바일 청첩장</title>
+<title>태경 ♥ 지영 결혼합니다</title>
 <meta property="og:title" content="태경 ♥ 지영 결혼합니다">
 <meta property="og:description" content="저희 두 사람의 결혼식에 초대합니다.">
 <meta property="og:image" content="https://ghaud21-art.github.io/tae-wedding/assets/hero.jpg">
@@ -19,15 +19,17 @@
 
   <!-- 1. 메인 -->
   <section class="sec-hero" data-screen-label="메인">
-    <div class="hero-bg img-slot" id="slot-hero"></div>
-    <div class="hero-fade"></div>
-    <div class="hero-top">
+    <div class="hero-frame">
+      <div class="hero-bg img-slot" id="slot-hero"></div>
+      <div class="hero-photo-fade"></div>
+      <div class="hero-photo-caption">We're getting Married!</div>
+    </div>
+    <div class="hero-names-row">
       <span class="hero-name" id="hero-name-left"></span>
       <span class="hero-date-num" id="hero-date-num"></span>
       <span class="hero-name" id="hero-name-right"></span>
     </div>
-    <img class="hero-title hw-reveal" src="assets/wedding-text.png" alt="We're getting Married!">
-    <div class="hero-bottom">
+    <div class="hero-lines">
       <div id="hero-time-line"></div>
       <div id="hero-venue-line"></div>
     </div>
@@ -104,11 +106,17 @@
     <div class="head">
       <div class="eyebrow-en">Information</div>
       <div class="eyebrow-kr">예식 안내</div>
+      <div class="countdown-title" id="countdown-title"></div>
+      <div class="countdown-row">
+        <div class="countdown-item"><div class="countdown-circle" id="cd-days">–</div><div class="countdown-label">Days</div></div>
+        <div class="countdown-item"><div class="countdown-circle" id="cd-hours">–</div><div class="countdown-label">Hours</div></div>
+        <div class="countdown-item"><div class="countdown-circle" id="cd-mins">–</div><div class="countdown-label">Minutes</div></div>
+        <div class="countdown-item"><div class="countdown-circle" id="cd-secs">–</div><div class="countdown-label">Seconds</div></div>
+      </div>
       <div class="info-card">
         <div class="info-date" id="info-date"></div>
         <div class="info-time" id="info-time"></div>
         <div class="calendar-grid" id="calendar-grid"></div>
-        <div class="dday-line" id="dday-line"></div>
       </div>
     </div>
     <div class="hscroll" id="notice-scroll"></div>

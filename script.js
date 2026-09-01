@@ -176,6 +176,28 @@ function renderCalendar(container, weddingDate) {
   container.appendChild(frag);
 }
 
+let _countdownTimer = null;
+function initCountdown(weddingDate) {
+  clearInterval(_countdownTimer);
+  const days = document.getElementById('cd-days');
+  const hours = document.getElementById('cd-hours');
+  const mins = document.getElementById('cd-mins');
+  const secs = document.getElementById('cd-secs');
+  if (!weddingDate) return;
+  const pad = n => String(Math.max(n, 0)).padStart(2, '0');
+  const tick = () => {
+    const diff = weddingDate.getTime() - Date.now();
+    const remain = Math.max(diff, 0);
+    days.textContent = pad(Math.floor(remain / 86400000));
+    hours.textContent = pad(Math.floor(remain / 3600000) % 24);
+    mins.textContent = pad(Math.floor(remain / 60000) % 60);
+    secs.textContent = pad(Math.floor(remain / 1000) % 60);
+    if (diff <= 0) clearInterval(_countdownTimer);
+  };
+  tick();
+  _countdownTimer = setInterval(tick, 1000);
+}
+
 function renderPage(data) {
   const { info, interviews, galleryIds, story, notices, accountGroups } = data;
 
@@ -289,14 +311,9 @@ function renderPage(data) {
     ? `${weddingDate.getFullYear()}년 ${weddingDate.getMonth() + 1}월 ${weddingDate.getDate()}일 ${WEEKDAYS[weddingDate.getDay()]}요일` : '';
   document.getElementById('info-time').textContent = [formatKoreanTime(info.weddingTime), info.venueName].filter(Boolean).join(' · ');
   renderCalendar(document.getElementById('calendar-grid'), weddingDate);
-  const ddayLine = document.getElementById('dday-line');
-  if (weddingDate) {
-    const today = new Date(); today.setHours(0, 0, 0, 0);
-    const wd = new Date(weddingDate); wd.setHours(0, 0, 0, 0);
-    const days = Math.round((wd - today) / 86400000);
-    const dday = days > 0 ? days + '일' : (days === 0 ? '오늘' : (Math.abs(days) + '일 지남'));
-    ddayLine.innerHTML = `${escapeHtml(info.groomName)} <span style="color:var(--accent)">♥</span> ${escapeHtml(info.brideName)}의 결혼식이 <b>${dday}</b> 남았습니다`;
-  }
+  document.getElementById('countdown-title').innerHTML =
+    `${escapeHtml(info.groomName)} <span style="color:var(--accent)">♥</span> ${escapeHtml(info.brideName)}의 <b>결혼식까지</b>`;
+  initCountdown(weddingDate);
   const noticeScroll = document.getElementById('notice-scroll');
   noticeScroll.innerHTML = notices.map(n => `
     <div class="notice-card">
