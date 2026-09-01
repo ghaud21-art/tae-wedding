@@ -7,14 +7,13 @@ const CFG = window.WEDDING_CONFIG;
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
 /* ---------------- 구글 시트 읽기 ----------------
- * 시트는 하나의 탭에 "타입,값1,값2,값3,값4" 형식의 한 표로 되어 있습니다.
- * 타입 열의 값(기본정보/인터뷰/갤러리/우리의시간/안내사항/계좌번호)으로
- * 각 행이 어느 섹션에 속하는지 구분합니다. */
+ * 시트는 탭 여러 개로 되어 있습니다: 설정 / 인터뷰 / 갤러리 / 우리의시간 / 안내사항 / 계좌번호 / 참석여부
+ * 신랑신부가 실제로 고치는 값들은 전부 "설정" 탭 안에 있습니다. */
 
-async function fetchAllRows() {
-  const url = `https://docs.google.com/spreadsheets/d/${CFG.SHEET_ID}/gviz/tq?tqx=out:json`;
+async function fetchSheetRows(sheetName) {
+  const url = `https://docs.google.com/spreadsheets/d/${CFG.SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error('시트를 불러오지 못했습니다');
+  if (!res.ok) throw new Error('시트를 불러오지 못했습니다: ' + sheetName);
   const text = await res.text();
   const jsonStr = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
   const json = JSON.parse(jsonStr);
@@ -26,6 +25,12 @@ async function fetchAllRows() {
     })
   );
   return rows.slice(1).filter(r => r.some(v => v !== '')); // 헤더 행 제외 + 빈 행 제외
+}
+
+function rowsToMap(rows) {
+  const map = {};
+  rows.forEach(r => { if (r[0]) map[r[0].trim()] = r[1] ?? ''; });
+  return map;
 }
 
 /* ---------------- 유틸 ---------------- */
@@ -389,36 +394,34 @@ function initRsvp(info) {
 
 /* ---------------- 초기화 ---------------- */
 
-function groupRows(rows) {
-  const info = {};
-  const interviews = [];
-  const galleryIds = [];
-  const story = [];
-  const notices = [];
+function groupAccountRows(rows) {
   const groupsMap = {};
-
   rows.forEach(r => {
-    const type = (r[0] || '').trim();
-    const v1 = r[1] || '', v2 = r[2] || '', v3 = r[3] || '', v4 = r[4] || '';
-    if (type === '기본정보') { if (v1) info[v1.trim()] = v2; }
-    else if (type === '인터뷰') { interviews.push({ q: v2, a: v3 }); }
-    else if (type === '갤러리') { if (v2) galleryIds.push(v2); }
-    else if (type === '우리의시간') { story.push({ date: v2, title: v3, desc: v4 }); }
-    else if (type === '안내사항') { notices.push({ en: v2, title: v3, desc: v4 }); }
-    else if (type === '계좌번호') {
-      const label = (v1 || '기타') + ' 계좌번호';
-      if (!groupsMap[label]) groupsMap[label] = [];
-      groupsMap[label].push({ holder: v2, bank: v3, number: v4 });
-    }
+    const label = (r[0] || '기타') + ' 계좌번호';
+    if (!groupsMap[label]) groupsMap[label] = [];
+    groupsMap[label].push({ holder: r[1] || '', bank: r[2] || '', number: r[3] || '' });
   });
-
-  const accountGroups = Object.keys(groupsMap).map(label => ({ label, items: groupsMap[label] }));
-  return { info, interviews, galleryIds, story, notices, accountGroups };
+  return Object.keys(groupsMap).map(label => ({ label, items: groupsMap[label] }));
 }
 
 async function loadData() {
-  const rows = await fetchAllRows();
-  return groupRows(rows);
+  const [settingsRows, interviewRows, galleryRows, storyRows, noticeRows, accountRows] = await Promise.all([
+    fetchSheetRows('설정'),
+    fetchSheetRows('인터뷰'),
+    fetchSheetRows('갤러리'),
+    fetchSheetRows('우리의시간'),
+    fetchSheetRows('안내사항'),
+    fetchSheetRows('계좌번호'),
+  ]);
+
+  const info = rowsToMap(settingsRows);
+  const interviews = interviewRows.map(r => ({ q: r[1] || '', a: r[2] || '' }));
+  const galleryIds = galleryRows.map(r => r[1] || '').filter(Boolean);
+  const story = storyRows.map(r => ({ date: r[1] || '', title: r[2] || '', desc: r[3] || '' }));
+  const notices = noticeRows.map(r => ({ en: r[1] || '', title: r[2] || '', desc: r[3] || '' }));
+  const accountGroups = groupAccountRows(accountRows);
+
+  return { info, interviews, galleryIds, story, notices, accountGroups };
 }
 
 (async function init() {
