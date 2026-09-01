@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>민준 ♥ 서연 모바일 청첩장</title>
+<meta property="og:title" content="민준 ♥ 서연 결혼합니다">
+<meta property="og:description" content="저희 두 사람의 결혼식에 초대합니다.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="load-state">불러오는 중입니다…</div>
+
+<div id="page" class="hidden">
+
+  <!-- 1. 메인 -->
+  <section class="sec-hero" data-screen-label="메인">
+    <div class="hero-bg img-slot" id="slot-hero"></div>
+    <div class="hero-fade"></div>
+    <img class="hero-title hw-reveal" src="assets/wedding-text.png" alt="We're getting Married!">
+    <div class="hero-caption">
+      <div class="hero-names"><span id="hero-groom"></span> <span class="and">그리고</span> <span id="hero-bride"></span></div>
+      <div class="hero-date" id="hero-date"></div>
+      <div class="hero-venue" id="hero-venue"></div>
+    </div>
+  </section>
+
+  <!-- 2. 인사말 -->
+  <section class="rv" data-screen-label="인사말">
+    <div class="eyebrow-en">Invitation</div>
+    <div class="eyebrow-kr">소중한 분들을 초대합니다</div>
+    <p class="greeting-text" id="greeting-text"></p>
+  </section>
+
+  <!-- 3. 신랑 신부 및 혼주 소개 -->
+  <section class="rv sec-family" data-screen-label="혼주 소개">
+    <div class="divider"></div>
+    <div class="family-list">
+      <div><span class="parents" id="groom-parents"></span> <span class="rel">의 장남</span> <b id="groom-name-2"></b></div>
+      <div><span class="parents" id="bride-parents"></span> <span class="rel">의 장녀</span> <b id="bride-name-2"></b></div>
+    </div>
+    <div class="contact-actions">
+      <button class="pill-btn" id="btn-contact">연락하기</button>
+    </div>
+    <div class="contact-grid hidden" id="contact-grid">
+      <div>신랑 <b id="cg-groom-name"></b><br><a id="cg-groom-tel" href="#"></a></div>
+      <div>신부 <b id="cg-bride-name"></b><br><a id="cg-bride-tel" href="#"></a></div>
+    </div>
+  </section>
+
+  <!-- 4. 웨딩 인터뷰 -->
+  <section class="rv" data-screen-label="웨딩 인터뷰">
+    <div class="eyebrow-en">Interview</div>
+    <div class="eyebrow-kr">우리 두 사람의 이야기</div>
+    <div class="interview-photo img-slot" id="slot-interview"></div>
+    <p class="interview-lead">결혼을 앞둔 저희 두 사람의<br>솔직한 마음을 담아보았습니다.</p>
+    <div class="interview-list hidden" id="interview-list"></div>
+    <div class="center-btn-row">
+      <button class="solid-btn" id="btn-interview">인터뷰 읽어보기</button>
+    </div>
+  </section>
+
+  <!-- 5. 게스트스냅 -->
+  <section class="rv" data-screen-label="게스트스냅" id="sec-snap">
+    <div class="eyebrow-en">Guest Snap</div>
+    <div class="eyebrow-kr">게스트스냅</div>
+    <p class="snap-lead">예식에서 담아주신 저희의 순간들을<br>아래 링크로 공유해 주시면<br>소중히 간직하겠습니다.</p>
+    <div class="snap-link-wrap">
+      <a class="snap-link" id="snap-link" href="#" target="_blank" rel="noopener">사진 공유하러 가기</a>
+    </div>
+  </section>
+
+  <!-- 6. 웨딩 갤러리 -->
+  <section class="rv sec-gallery" data-screen-label="갤러리">
+    <div class="head">
+      <div class="eyebrow-en">Gallery</div>
+      <div class="eyebrow-kr">웨딩 갤러리</div>
+    </div>
+    <div class="hscroll" id="gallery-scroll"></div>
+    <div class="hscroll-hint">← 옆으로 넘겨보세요 →</div>
+  </section>
+
+  <!-- 7. 우리의 시간 -->
+  <section class="rv" data-screen-label="우리의 시간">
+    <div class="eyebrow-en">Our Story</div>
+    <div class="eyebrow-kr">우리의 시간</div>
+    <div class="story-list" id="story-list"></div>
+  </section>
+
+  <!-- 8. 예식 안내 -->
+  <section class="rv sec-info" data-screen-label="예식 안내">
+    <div class="head">
+      <div class="eyebrow-en">Information</div>
+      <div class="eyebrow-kr">예식 안내</div>
+      <div class="info-card">
+        <div class="info-date" id="info-date"></div>
+        <div class="info-time" id="info-time"></div>
+        <div class="calendar-grid" id="calendar-grid"></div>
+        <div class="dday-line" id="dday-line"></div>
+      </div>
+    </div>
+    <div class="hscroll" id="notice-scroll"></div>
+    <div class="hscroll-hint">← 옆으로 넘겨보세요 →</div>
+  </section>
+
+  <!-- 9. 오시는 길 -->
+  <section class="rv" data-screen-label="오시는 길">
+    <div class="eyebrow-en">Location</div>
+    <div class="eyebrow-kr">오시는 길</div>
+    <div class="venue-name" id="venue-name-2"></div>
+    <div class="venue-address" id="venue-address"></div>
+    <div class="copy-addr-row"><button class="outline-btn-sm" id="btn-copy-addr">주소 복사</button></div>
+    <div class="map-embed"><iframe id="map-iframe" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+    <div class="map-links">
+      <a id="link-kakao" href="#" target="_blank" rel="noopener">카카오맵</a>
+      <a id="link-naver" href="#" target="_blank" rel="noopener">네이버지도</a>
+    </div>
+    <div class="transit-list">
+      <div><b>지하철</b><br><span id="transit-subway"></span></div>
+      <div><b>버스</b><br><span id="transit-bus"></span></div>
+      <div><b>주차</b><br><span id="transit-parking"></span></div>
+    </div>
+  </section>
+
+  <!-- 10. 참석 여부 -->
+  <section class="rv" data-screen-label="참석 여부">
+    <div class="eyebrow-en">R.S.V.P.</div>
+    <div class="eyebrow-kr">참석 여부를 전해주세요</div>
+    <p class="rsvp-lead">축하의 마음으로 참석해 주시는<br>모든 분들을 귀하게 모실 수 있도록<br>참석 여부를 미리 알려주시면 감사하겠습니다.</p>
+
+    <div class="rsvp-done hidden" id="rsvp-done">
+      소중한 마음 감사히 받았습니다 <span class="heart">♥</span><br>
+      <span class="sub" id="rsvp-summary"></span>
+    </div>
+
+    <div class="rsvp-form hidden" id="rsvp-form">
+      <div class="side-row">
+        <button class="side-btn" id="btn-side-groom" data-side="groom">신랑측</button>
+        <button class="side-btn" id="btn-side-bride" data-side="bride">신부측</button>
+      </div>
+      <input type="text" id="rsvp-name" placeholder="성함">
+      <div class="count-row">
+        <span class="label">동행 포함 인원</span>
+        <div class="stepper">
+          <button class="step-btn" id="rsvp-dec">−</button>
+          <b id="rsvp-count">1</b>
+          <button class="step-btn" id="rsvp-inc">＋</button>
+        </div>
+      </div>
+      <button class="solid-btn-block" id="rsvp-submit">참석 의사 전달하기</button>
+    </div>
+
+    <div class="rsvp-open-row hidden" id="rsvp-idle">
+      <button class="solid-btn-lg" id="btn-rsvp-open">참석 여부 전달하기</button>
+    </div>
+  </section>
+
+  <!-- 11. 계좌번호 -->
+  <section class="rv" data-screen-label="계좌번호">
+    <div class="eyebrow-en">With Love</div>
+    <div class="eyebrow-kr">마음 전하실 곳</div>
+    <p class="account-lead">참석이 어려워 축하의 마음을<br>전하고 싶으신 분들을 위해 기재했습니다.</p>
+    <div class="account-groups" id="account-groups"></div>
+  </section>
+
+  <!-- 12. 마무리 -->
+  <section class="rv sec-ending" data-screen-label="마무리">
+    <div class="ending-photo-wrap">
+      <div class="img-slot" id="slot-ending"></div>
+      <div class="ending-fade"></div>
+    </div>
+    <div class="ending-body">
+      <div class="ending-title">Thank you</div>
+      <p class="ending-lead">저희 두 사람의 시작을<br>함께해 주셔서 감사합니다.</p>
+      <div class="ending-actions">
+        <button class="solid-btn-pill" id="btn-share">청첩장 공유하기</button>
+        <button class="outline-btn" id="btn-copy-link">링크 복사</button>
+      </div>
+      <div class="ending-sign" id="ending-sign"></div>
+    </div>
+  </section>
+
+</div>
+
+<div id="toast"></div>
+
+<script src="config.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
