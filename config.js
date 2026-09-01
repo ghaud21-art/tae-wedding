@@ -7,7 +7,7 @@ window.WEDDING_CONFIG = {
   // 예) https://docs.google.com/spreadsheets/d/1AbCдEfG.../edit  ->  "1AbCдEfG..."
   SHEET_ID: "1ubgouI2ixLTqXMW4pfe8aktwO_ti9V9UJZBmx9SU-T4",
 
-  // Apps Script를 '웹 앱'으로 배포하면 나오는 URL (참석 여부 저장용)
-  // 예) https://script.google.com/macros/s/AKfycb.../exec
-  RSVP_WEBAPP_URL: "REPLACE_WITH_APPS_SCRIPT_URL",
+  // Apps Script를 '웹 앱'으로 배포하면 나오는 URL
+  // (드라이브 사진 자동 연동 + 참석 여부 저장 + 게스트스냅 수신에 사용)
+  RSVP_WEBAPP_URL: "https://script.google.com/macros/s/AKfycbzP1sjEx-kL5uEm_8L5EUSupIDYQBZyfxgljO7Vdum2nA1B9QGGf1rMltYLglBCFq5l/exec",
 };
