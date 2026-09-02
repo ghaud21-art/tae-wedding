@@ -92,7 +92,7 @@ input{font:inherit}
 /* ---------- generic section chrome ---------- */
 section{padding:80px 34px}
 .eyebrow-en{font-family:Parisienne,cursive;font-size:30px;color:var(--accent);text-align:center}
-.eyebrow-kr{margin-top:6px;font-size:13px;letter-spacing:5px;color:#a89e94;text-align:center}
+.eyebrow-kr{margin-top:6px;font-size:11px;letter-spacing:2.5px;color:#a89e94;text-align:center}
 .divider{width:44px;height:1px;background:#e4d9cf;margin:0 auto 44px}
 
 /* ---------- section: greeting ---------- */
@@ -183,7 +183,7 @@ section{padding:80px 34px}
   margin-top:14px;font-family:'Noto Sans KR',sans-serif;font-size:11.5px;letter-spacing:1px;color:#9c8f85;
   background:none;border:1px solid #e6dcd2;border-radius:999px;padding:7px 18px;cursor:pointer;
 }
-.map-embed{margin-top:26px;height:210px;border-radius:12px;overflow:hidden;background:#f4f1ea}
+.map-embed{margin-top:26px;min-height:240px;border-radius:12px;overflow:hidden;background:#f4f1ea;display:flex;justify-content:center}
 .map-embed iframe{width:100%;height:100%;border:0}
 .map-links{margin-top:12px;display:flex;justify-content:center;gap:8px}
 .map-links a{font-family:'Noto Sans KR',sans-serif;font-size:12px;color:#9c8f85;border:1px solid #e6dcd2;border-radius:999px;padding:8px 16px}
@@ -288,7 +288,7 @@ body.variant-clean{--accent:#a9865a;--accent-soft:#ddc9a8;--accent-shadow:rgba(1
 body.variant-clean .sec-hero{--accent:#c1a05e;--accent-soft:#e5d6b7;--accent-shadow:rgba(193,160,94,.30)}
 
 /* variant: 로고 버전 — 섹션 상단 영문 라벨을 로고 이미지로 (일부 섹션만 준비됨) */
-.eyebrow-logo{display:none;height:30px;margin:0 auto}
+.eyebrow-logo{display:none;height:22px;margin:0 auto}
 body.variant-logo .eyebrow-en.has-logo{display:none}
 body.variant-logo .eyebrow-logo{display:block}
 
@@ -298,18 +298,17 @@ body.variant-font .eyebrow-en{
   letter-spacing:3px;text-transform:uppercase;
 }
 
-/* variant: 수정 0903 — 히어로 글자 크기 축소 + 클래식 영문체 + 버터 옐로우 통일 */
+/* variant: 수정 0903 — 히어로 글자 크기 축소 + 클래식 영문체 + 톤다운 버터 옐로우 통일 */
 body.variant-0903{
-  --accent:#fcf19e;--accent-soft:#fdf6d9;--accent-shadow:rgba(211,189,90,.35);
+  --accent:#f0dfa0;--accent-soft:#faf3dc;--accent-shadow:rgba(198,180,120,.32);
 }
-body.variant-0903 .sec-hero .hero-top{font-size:9px;letter-spacing:1.5px}
+body.variant-0903 .sec-hero .hero-top{font-size:9px;letter-spacing:1.5px;color:#fff}
 body.variant-0903 .sec-hero .hero-date-num{font-size:9px;letter-spacing:1.5px}
-body.variant-0903 .sec-hero .hero-top,
-body.variant-0903 .sec-hero .hero-bottom{color:var(--accent);text-shadow:0 1px 8px rgba(0,0,0,.4)}
 body.variant-0903 .sec-hero .hero-bottom{
-  font-family:'Crimson Pro',serif;font-weight:300;
-  font-size:8.5px;letter-spacing:1.5px;line-height:2.4;
+  color:#fff;font-family:'Crimson Pro',serif;font-weight:300;
+  font-size:9.5px;letter-spacing:1.5px;line-height:2.4;
 }
+body.variant-0903 .eyebrow-en{font-family:'Crimson Pro',serif;font-weight:300;font-size:26px;letter-spacing:1px}
 body.variant-0903 .story-date{font-family:'Crimson Pro',serif;font-weight:300;font-size:20px;letter-spacing:.5px}
 body.variant-0903 .solid-btn,
 body.variant-0903 .solid-btn-block,

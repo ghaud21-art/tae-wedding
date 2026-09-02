@@ -328,7 +328,6 @@ function renderPage(data) {
   document.getElementById('venue-address').textContent = info.venueAddress || '';
   document.getElementById('btn-copy-addr').addEventListener('click', () => copyText(info.venueAddress || '', '주소가 복사되었습니다'));
   if (info.venueAddress) {
-    document.getElementById('map-iframe').src = `https://maps.google.com/maps?q=${encodeURIComponent(info.venueAddress)}&z=16&output=embed`;
     const q = encodeURIComponent(`${info.venueName || ''} ${info.venueAddress}`.trim());
     document.getElementById('link-kakao').href = `https://map.kakao.com/link/search/${q}`;
     document.getElementById('link-naver').href = `https://map.naver.com/v5/search/${q}`;
