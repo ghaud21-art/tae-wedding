@@ -584,7 +584,7 @@ function initVariantSwitcher() {
   const buttons = Array.from(bar.querySelectorAll('.v-btn'));
   buttons.forEach(btn => {
     btn.addEventListener('click', () => {
-      document.body.classList.remove('variant-clean', 'variant-logo', 'variant-font');
+      document.body.classList.remove('variant-clean', 'variant-logo', 'variant-font', 'variant-0903');
       const v = btn.dataset.variant;
       if (v !== 'current') document.body.classList.add('variant-' + v);
       buttons.forEach(b => b.classList.toggle('active', b === btn));

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Parisienne&family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@300;400;500&family=Jost:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Parisienne&family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@300;400;500&family=Jost:wght@400;500&family=Crimson+Pro:wght@300&display=swap');
 
 :root{
   --accent: #c1a05e;
@@ -297,3 +297,23 @@ body.variant-font .eyebrow-en{
   font-family:'Jost',sans-serif;font-weight:500;font-size:15px;
   letter-spacing:3px;text-transform:uppercase;
 }
+
+/* variant: 수정 0903 — 히어로 글자 크기 축소 + 클래식 영문체 + 버터 옐로우 통일 */
+body.variant-0903{
+  --accent:#fcf19e;--accent-soft:#fdf6d9;--accent-shadow:rgba(211,189,90,.35);
+}
+body.variant-0903 .sec-hero .hero-top{font-size:9px;letter-spacing:1.5px}
+body.variant-0903 .sec-hero .hero-date-num{font-size:9px;letter-spacing:1.5px}
+body.variant-0903 .sec-hero .hero-top,
+body.variant-0903 .sec-hero .hero-bottom{color:var(--accent);text-shadow:0 1px 8px rgba(0,0,0,.4)}
+body.variant-0903 .sec-hero .hero-bottom{
+  font-family:'Crimson Pro',serif;font-weight:300;
+  font-size:8.5px;letter-spacing:1.5px;line-height:2.4;
+}
+body.variant-0903 .story-date{font-family:'Crimson Pro',serif;font-weight:300;font-size:20px;letter-spacing:.5px}
+body.variant-0903 .solid-btn,
+body.variant-0903 .solid-btn-block,
+body.variant-0903 .solid-btn-lg,
+body.variant-0903 .solid-btn-pill,
+body.variant-0903 .side-btn.active,
+body.variant-0903 .countdown-circle{color:#6b5628}
