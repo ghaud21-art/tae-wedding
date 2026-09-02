@@ -310,9 +310,27 @@ body.variant-0903 .sec-hero .hero-bottom{
 }
 body.variant-0903 .eyebrow-en{font-family:'Crimson Pro',serif;font-weight:300;font-size:26px;letter-spacing:1px}
 body.variant-0903 .story-date{font-family:'Crimson Pro',serif;font-weight:300;font-size:20px;letter-spacing:.5px}
+body.variant-0903 .ending-title{font-family:'Crimson Pro',serif;font-weight:300;font-size:30px}
+body.variant-0903 .ending-sign{font-family:'Nanum Myeongjo',serif;letter-spacing:.5px}
 body.variant-0903 .solid-btn,
 body.variant-0903 .solid-btn-block,
 body.variant-0903 .solid-btn-lg,
 body.variant-0903 .solid-btn-pill,
 body.variant-0903 .side-btn.active,
 body.variant-0903 .countdown-circle{color:#6b5628}
+
+/* variant-0903: 본문 글자 크기 전체적으로 축소 (여백감) */
+body.variant-0903 .greeting-text{font-size:13.5px;line-height:2}
+body.variant-0903 .interview-lead,
+body.variant-0903 .snap-lead{font-size:13px}
+body.variant-0903 .interview-list .q-text{font-size:13.5px}
+body.variant-0903 .interview-list .a-text{font-size:12.5px}
+body.variant-0903 .story-title{font-size:14px}
+body.variant-0903 .story-desc{font-size:12.5px}
+body.variant-0903 .notice-title{font-size:13.5px}
+body.variant-0903 .notice-desc{font-size:12px}
+body.variant-0903 .rsvp-lead,
+body.variant-0903 .ending-lead{font-size:12.5px}
+body.variant-0903 .account-lead{font-size:12.5px}
+body.variant-0903 .venue-address,
+body.variant-0903 .transit-list{font-size:12px}
