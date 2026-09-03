@@ -238,17 +238,17 @@ section{padding:80px 34px}
 
 /* 편지지 카드 — 캐러셀(고정 250x250)과 목록/확대(반응형이지만 width=height 고정값)에서 공용 */
 .guestbook-card{
-  position:relative;flex:none;
+  position:relative;flex:none;overflow:hidden;
   background:url('assets/guestbook-card.png') center/cover no-repeat;
 }
 .guestbook-carousel .guestbook-card{width:250px;height:250px}
 .guestbook-list-card{width:min(84vw,330px);height:min(84vw,330px)}
 .guestbook-card-inner{
-  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  text-align:center;padding:27% 20%;
+  position:absolute;inset:0;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:27% 20%;overflow:hidden;
 }
 .guestbook-card-message{
-  flex:0 1 auto;min-height:0;overflow-y:auto;
+  flex:0 1 auto;min-height:0;max-height:100%;overflow-y:auto;overflow-wrap:break-word;word-break:break-word;
   font-family:'Noto Sans KR',sans-serif;font-size:12px;line-height:1.65;color:#5c554e;white-space:pre-line;
 }
 .guestbook-card-from{flex-shrink:0;margin-top:10px;font-family:'Crimson Pro',serif;font-weight:300;font-size:14px;color:var(--accent-deep)}
