@@ -211,6 +211,7 @@ function renderPage(data) {
   const photos = data.photos || {};
   const heroId = (photos.hero && photos.hero[0]) || info.heroImageId;
   const interviewId = (photos.interview && photos.interview[0]) || info.interviewImageId;
+  const infoPhotoId = heroId;
   const endingId = (photos.ending && photos.ending[0]) || info.endingImageId;
   const finalGalleryIds = (photos.gallery && photos.gallery.length) ? photos.gallery : galleryIds;
 
@@ -276,10 +277,7 @@ function renderPage(data) {
     interviewBtn.textContent = open ? '인터뷰 접기' : '인터뷰 읽어보기';
   });
 
-  // 5. 게스트스냅 — 웹앱이 연결돼 있으면 이 사이트에서 바로 업로드, 아니면 외부 링크
-  initSnapUpload(info);
-
-  // 6. 갤러리
+  // 5. 갤러리
   const galleryScroll = document.getElementById('gallery-scroll');
   galleryScroll.innerHTML = '';
   finalGalleryIds.forEach((gid, i) => {
@@ -293,7 +291,7 @@ function renderPage(data) {
     galleryScroll.appendChild(wrap);
   });
 
-  // 7. 우리의 시간
+  // 6. 우리의 시간
   const storyList = document.getElementById('story-list');
   storyList.innerHTML = story.map(s => `
     <div class="story-row">
@@ -306,13 +304,16 @@ function renderPage(data) {
     </div>
   `).join('');
 
-  // 8. 예식 안내
+  // 7. 예식 안내 (사진 - 달력 - 타이머)
+  const infoSlot = document.getElementById('slot-info');
+  if (infoPhotoId) setImgSlot(infoSlot, infoPhotoId, '예식 사진');
+  else setImgSlotSrc(infoSlot, 'assets/hero.jpg', '예식 사진');
   document.getElementById('info-date').textContent = weddingDate
     ? `${weddingDate.getFullYear()}년 ${weddingDate.getMonth() + 1}월 ${weddingDate.getDate()}일 ${WEEKDAYS[weddingDate.getDay()]}요일` : '';
   document.getElementById('info-time').textContent = [formatKoreanTime(info.weddingTime), info.venueName].filter(Boolean).join(' · ');
   renderCalendar(document.getElementById('calendar-grid'), weddingDate);
   document.getElementById('countdown-title').innerHTML =
-    `${escapeHtml(info.groomName)} <span style="color:var(--accent)">♥</span> ${escapeHtml(info.brideName)}의 <b>결혼식까지</b>`;
+    `태경 <span style="color:var(--accent)">♥</span> 지영 <b>결혼식까지</b>`;
   initCountdown(weddingDate);
   const noticeScroll = document.getElementById('notice-scroll');
   noticeScroll.innerHTML = notices.map(n => `
@@ -323,7 +324,7 @@ function renderPage(data) {
     </div>
   `).join('');
 
-  // 9. 오시는 길
+  // 8. 오시는 길
   document.getElementById('venue-name-2').textContent = info.venueName || '';
   document.getElementById('venue-address').textContent = info.venueAddress || '';
   document.getElementById('btn-copy-addr').addEventListener('click', () => copyText(info.venueAddress || '', '주소가 복사되었습니다'));
@@ -336,10 +337,10 @@ function renderPage(data) {
   document.getElementById('transit-bus').innerHTML = nl2br(info.busInfo);
   document.getElementById('transit-parking').innerHTML = nl2br(info.parkingInfo);
 
-  // 10. 참석 여부
+  // 9. 참석 여부
   initRsvp(info);
 
-  // 11. 계좌번호
+  // 10. 계좌번호
   const accountGroupsEl = document.getElementById('account-groups');
   accountGroupsEl.innerHTML = '';
   accountGroups.forEach(g => {
@@ -368,6 +369,9 @@ function renderPage(data) {
     accountGroupsEl.appendChild(groupEl);
   });
 
+  // 11. 방명록 (guestbook.js)
+  initGuestbookSection();
+
   // 12. 마무리
   setImgSlot(document.getElementById('slot-ending'), endingId, '마무리 사진');
   document.getElementById('ending-sign').textContent = weddingDate
@@ -389,61 +393,6 @@ function renderPage(data) {
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('on'); io.unobserve(e.target); } });
   }, { threshold: 0.12 });
   document.querySelectorAll('.rv').forEach(el => io.observe(el));
-}
-
-/* ---------------- 게스트스냅 업로드 ---------------- */
-
-function initSnapUpload(info) {
-  const section = document.getElementById('sec-snap');
-  const linkEl = document.getElementById('snap-link');
-  const uploadBtn = document.getElementById('btn-snap-upload');
-  const fileInput = document.getElementById('snap-file-input');
-
-  const canUpload = webAppConfigured();
-  const hasLink = !!info.snapShareUrl;
-
-  if (!canUpload && !hasLink) { section.classList.add('hidden'); return; }
-
-  if (hasLink) linkEl.href = info.snapShareUrl;
-  else linkEl.classList.add('hidden');
-
-  if (!canUpload) { uploadBtn.classList.add('hidden'); return; }
-
-  uploadBtn.addEventListener('click', () => fileInput.click());
-  fileInput.addEventListener('change', async () => {
-    const files = Array.from(fileInput.files || []);
-    if (!files.length) return;
-    uploadBtn.disabled = true;
-    let sent = 0;
-    for (const file of files) {
-      if (file.size > 15 * 1024 * 1024) { showToast(`${file.name}은(는) 15MB를 넘어 건너뛰었습니다`); continue; }
-      uploadBtn.textContent = `사진 보내는 중… (${sent + 1}/${files.length})`;
-      try {
-        const base64 = await fileToBase64(file);
-        await fetch(CFG.RSVP_WEBAPP_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          body: JSON.stringify({ type: 'photo', name: file.name, mimeType: file.type, base64 })
-        });
-        sent++;
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    uploadBtn.disabled = false;
-    uploadBtn.textContent = '사진 보내기';
-    fileInput.value = '';
-    showToast(sent > 0 ? `사진 ${sent}장을 보냈습니다. 감사합니다 ♥` : '사진 전송에 실패했습니다');
-  });
-}
-
-function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result).split(',')[1]);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
 }
 
 function escapeHtml(str) {
@@ -577,23 +526,10 @@ async function loadData() {
   return { info, interviews, galleryIds, story, notices, accountGroups, photos };
 }
 
-function initVariantSwitcher() {
-  const bar = document.getElementById('variant-bar');
-  if (!bar) return;
-  const buttons = Array.from(bar.querySelectorAll('.v-btn'));
-  buttons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.body.classList.remove('variant-clean', 'variant-logo', 'variant-font', 'variant-0903');
-      const v = btn.dataset.variant;
-      if (v !== 'current') document.body.classList.add('variant-' + v);
-      buttons.forEach(b => b.classList.toggle('active', b === btn));
-    });
-  });
-  document.body.classList.add('has-variant-bar');
-}
-
 (async function init() {
-  initVariantSwitcher();
+  // 초대장 본문(index.html)에만 있는 요소로 페이지를 판별합니다.
+  // guestbook.html 등 다른 페이지에서는 script.js의 유틸 함수만 쓰고 이 렌더링은 건너뜁니다.
+  if (!document.getElementById('slot-hero')) return;
   try {
     if (!CFG.SHEET_ID || CFG.SHEET_ID.includes('REPLACE_WITH')) {
       throw new Error('config.js에 구글 시트 ID가 설정되지 않았습니다.');

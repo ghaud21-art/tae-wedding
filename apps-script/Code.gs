@@ -4,11 +4,14 @@
  * 기능:
  *  - doGet  : 드라이브 사진 폴더(메인/인터뷰/마무리/갤러리)의 사진 목록을 사이트에 전달
  *             → 폴더에 사진을 올리기만 하면 사이트에 자동으로 반영됩니다.
- *  - doPost : 참석 여부(RSVP)를 "참석여부" 탭에 저장 + 하객이 보낸 사진(게스트스냅)을
- *             드라이브 "게스트스냅" 폴더에 저장
- *  - setupAll : 계좌번호 6명(신랑/신랑 부모/신부/신부 부모) 채우기 + 편집 칸 노란색 칠하기
+ *             ?action=getGuestbook 이면 "방명록" 탭의 메시지 목록을 반환 (비밀번호는 절대 포함 안 함)
+ *  - doPost : action 기준으로 라우팅합니다.
+ *             - submitGuestbook : 방명록 메시지 저장 (이름/메시지/비밀번호), ID는 Date.now() 문자열
+ *             - editGuestbook   : ID로 행을 찾아 비밀번호가 일치할 때만 이름/메시지 수정
+ *             - (action 없음) 기존 참석여부(RSVP) 저장 / 게스트스냅 사진 업로드 그대로 지원
+ *  - setupAll : 계좌번호 6명(신랑/신랑 부모/신부/신부 부모) 채우기 + 편집 칸 노란색 칠하기 + 방명록/참석여부 헤더 정리
  *               (다른 탭 내용은 건드리지 않아 언제 실행해도 안전)
- *  - setupSheet : 탭 7개를 처음부터 다시 만들기 (⚠ 기존 내용이 초기값으로 덮어써짐)
+ *  - setupSheet : 탭 8개를 처음부터 다시 만들기 (⚠ 기존 내용이 초기값으로 덮어써짐)
  *
  * 사용법:
  *  1. 함수 드롭다운에서 setupAll 선택 → [실행]
@@ -20,17 +23,28 @@
 const PHOTOS_FOLDER_ID = '1OPxzsGfkG-2rL7sUQ3xsIJNfyv1wc1xr'; // "태경님 청첩장 사진" 폴더
 const SECTION_FOLDERS = { hero: '메인', interview: '인터뷰', ending: '마무리', gallery: '갤러리' };
 const SNAP_FOLDER_NAME = '게스트스냅';
+const GUESTBOOK_SHEET_NAME = '방명록';
 
-/* ---------- 사진 목록 내려주기 (사이트가 GET으로 호출) ---------- */
+/* ---------- GET: 사진 목록 / 방명록 목록 (사이트가 GET으로 호출) ---------- */
 
 function doGet(e) {
+  const action = e && e.parameter && e.parameter.action;
+
+  if (action === 'getGuestbook') {
+    return jsonOutput(getGuestbookEntries());
+  }
+
   const root = DriveApp.getFolderById(PHOTOS_FOLDER_ID);
   const result = {};
   Object.keys(SECTION_FOLDERS).forEach(function (key) {
     result[key] = listImageIds(root, SECTION_FOLDERS[key]);
   });
+  return jsonOutput(result);
+}
+
+function jsonOutput(obj) {
   return ContentService
-    .createTextOutput(JSON.stringify(result))
+    .createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
 }
 
@@ -49,10 +63,74 @@ function listImageIds(root, folderName) {
   return items.map(function (x) { return x.id; });
 }
 
-/* ---------- RSVP 저장 + 게스트스냅 사진 수신 (사이트가 POST로 호출) ---------- */
+/* ---------- 방명록 읽기/쓰기 ---------- */
+
+function getGuestbookSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(GUESTBOOK_SHEET_NAME);
+  if (!sh) sh = ss.insertSheet(GUESTBOOK_SHEET_NAME);
+  return sh;
+}
+
+// [{id, date, name, message}] — 비밀번호는 절대 포함하지 않음
+function getGuestbookEntries() {
+  const sh = getGuestbookSheet();
+  const last = sh.getLastRow();
+  if (last < 2) return [];
+  const rows = sh.getRange(2, 1, last - 1, 5).getValues();
+  return rows
+    .filter(function (r) { return r[4]; }) // ID 있는 행만
+    .map(function (r) {
+      // 시트가 "작성일시" 문자열을 날짜로 자동 인식해 Date 객체로 돌려줄 때가 있어 다시 포맷합니다.
+      const raw = r[0];
+      const date = (raw instanceof Date)
+        ? Utilities.formatDate(raw, Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm')
+        : String(raw || '');
+      return { id: String(r[4]), date: date, name: String(r[1] || ''), message: String(r[2] || '') };
+    });
+}
+
+function submitGuestbook(data) {
+  const sh = getGuestbookSheet();
+  const row = sh.getLastRow() + 1;
+  const id = String(Date.now());
+  const timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm');
+  // ⚠ 비밀번호/ID는 숫자로 자동 변환되면 앞자리 0이 사라지므로 텍스트 서식을 먼저 강제합니다.
+  sh.getRange(row, 4, 1, 2).setNumberFormat('@');
+  sh.getRange(row, 1, 1, 5).setValues([[timestamp, data.name || '', data.message || '', String(data.password || ''), id]]);
+  return { result: 'ok', id: id };
+}
+
+function editGuestbook(data) {
+  const sh = getGuestbookSheet();
+  const last = sh.getLastRow();
+  if (last < 2) return { result: 'error', message: '메시지를 찾을 수 없습니다' };
+  const ids = sh.getRange(2, 5, last - 1, 1).getValues();
+  let rowIndex = -1;
+  for (let i = 0; i < ids.length; i++) {
+    if (String(ids[i][0]) === String(data.id)) { rowIndex = i + 2; break; }
+  }
+  if (rowIndex === -1) return { result: 'error', message: '메시지를 찾을 수 없습니다' };
+
+  const savedPassword = String(sh.getRange(rowIndex, 4).getValue());
+  if (savedPassword !== String(data.password || '')) {
+    return { result: 'error', message: '비밀번호가 일치하지 않습니다' };
+  }
+  sh.getRange(rowIndex, 2, 1, 2).setValues([[data.name || '', data.message || '']]);
+  return { result: 'ok' };
+}
+
+/* ---------- POST: RSVP / 방명록 / 게스트스냅 사진 (사이트가 POST로 호출) ---------- */
 
 function doPost(e) {
   const data = JSON.parse(e.postData.contents);
+
+  if (data.action === 'submitGuestbook') {
+    return jsonOutput(submitGuestbook(data));
+  }
+  if (data.action === 'editGuestbook') {
+    return jsonOutput(editGuestbook(data));
+  }
 
   if (data.type === 'photo') {
     const root = DriveApp.getFolderById(PHOTOS_FOLDER_ID);
@@ -70,9 +148,7 @@ function doPost(e) {
     sheet.appendRow([timestamp, data.side || '', data.attend || '', data.meal || '', data.name || '', data.count || '', data.message || '']);
   }
 
-  return ContentService
-    .createTextOutput(JSON.stringify({ result: 'ok' }))
-    .setMimeType(ContentService.MimeType.JSON);
+  return jsonOutput({ result: 'ok' });
 }
 
 /* ---------- 안전한 정리 함수: 계좌 6명 + 노란색 칠 (다른 내용은 안 건드림) ---------- */
@@ -81,6 +157,7 @@ function setupAll() {
   fixAccountsTab();
   applyRealInfo();
   fixRsvpHeaders();
+  fixGuestbookHeaders();
   colorEditableCells();
 }
 
@@ -96,8 +173,8 @@ function applyRealInfo() {
     weddingTime: '16:30',
     venueName: '메리빌리아 더 프레스티지',
     venueAddress: '경기도 수원시 (정확한 주소로 바꿔주세요)',
-    accentColor: '#c1a05e',
-    heroGroomEn: 'KIM TAEKYEONG',
+    accentColor: '#f0dfa0',
+    heroGroomEn: 'KIMTAEKYUNG',
     heroBrideEn: 'KIM JIYOUNG',
     heroVenueEn: 'MERRYVILIA THE PRESTIGE, SUWON',
   };
@@ -136,6 +213,15 @@ function fixRsvpHeaders() {
   sh.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
 }
 
+// "방명록" 탭이 없으면 새로 만들고, 있으면 헤더만 맞춥니다. 기존 메시지는 그대로 둡니다.
+// D(비밀번호)/E(ID) 열은 숫자로 자동 변환되지 않도록 텍스트 서식을 넓게 강제합니다.
+function fixGuestbookHeaders() {
+  const sh = getGuestbookSheet();
+  const headers = ['작성일시', '이름', '메시지', '비밀번호', 'ID'];
+  sh.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
+  sh.getRange(2, 4, 998, 2).setNumberFormat('@');
+}
+
 /**
  * 신랑신부가 실제로 고쳐야 하는 칸에 노란색 배경을 칠합니다.
  * 셀 값은 전혀 바꾸지 않으므로 언제 실행해도 안전합니다.
@@ -160,7 +246,7 @@ function colorEditableCells() {
   colorCols('우리의시간', [2, 3, 4]);  // 날짜, 제목, 설명
   colorCols('안내사항', [2, 3, 4]);    // 영문, 제목, 설명
   colorCols('계좌번호', [1, 2, 3, 4]); // 전체
-  // 참석여부 탭은 자동 기록용이라 칠하지 않습니다.
+  // 참석여부, 방명록 탭은 자동 기록용이라 칠하지 않습니다.
 }
 
 /* ---------- 전체 초기화 (⚠ 모든 탭이 초기값으로 덮어써짐 — 필요할 때만) ---------- */
@@ -198,7 +284,7 @@ function setupSheet() {
     ['greetingText',
       '서로가 마주 보며 다져온 사랑을\n이제 함께 한 곳을 바라보며\n걸어갈 수 있는 큰 사랑으로 키우려 합니다.\n\n' +
       '저희 두 사람이 사랑의 이름으로\n지켜나갈 수 있도록\n앞날을 축복해 주시면 감사하겠습니다.'],
-    ['accentColor', '#e9a8bc'],
+    ['accentColor', '#f0dfa0'],
     ['heroImageId', ''],
     ['interviewImageId', ''],
     ['endingImageId', ''],
@@ -227,10 +313,9 @@ function setupSheet() {
   ]);
 
   fillSheet('안내사항', ['순서', '영문', '제목', '설명'], [
-    ['1', 'Photobooth', '포토부스 안내', '예식장 입구에 포토부스가 준비되어 있습니다. 축하 메시지와 함께 사진을 남겨주세요.'],
-    ['2', 'Dining', '식사 안내', '예식 후 3층 연회장에서 뷔페 식사가 준비됩니다. 식권은 접수처에서 받아주세요.'],
-    ['3', 'Flower', '화환 안내', '축하 화환은 정중히 사양합니다. 마음만 감사히 받겠습니다.'],
-    ['4', 'Parking', '주차 안내', '지하 주차장 이용 시 접수처에서 주차 등록을 해주시면 2시간 무료입니다.'],
+    ['1', 'Dining', '식사 안내', '예식 후 3층 연회장에서 뷔페 식사가 준비됩니다. 식권은 접수처에서 받아주세요.'],
+    ['2', 'Flower', '화환 안내', '축하 화환은 정중히 사양합니다. 마음만 감사히 받겠습니다.'],
+    ['3', 'Parking', '주차 안내', '지하 주차장 이용 시 접수처에서 주차 등록을 해주시면 2시간 무료입니다.'],
   ]);
 
   fillSheet('계좌번호', ['구분', '예금주', '은행', '계좌번호'], [
@@ -243,9 +328,11 @@ function setupSheet() {
   ]);
 
   fillSheet('참석여부', ['시간', '구분', '참석여부', '식사여부', '성함', '인원', '전달사항'], []);
+  fillSheet('방명록', ['작성일시', '이름', '메시지', '비밀번호', 'ID'], []);
 
   ss.setActiveSheet(settings);
   ss.moveActiveSheet(1);
 
   colorEditableCells();
+  fixGuestbookHeaders();
 }

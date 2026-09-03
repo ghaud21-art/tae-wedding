@@ -13,14 +13,6 @@
 </head>
 <body>
 
-<div class="variant-bar" id="variant-bar">
-  <button class="v-btn active" data-variant="current">지금 버전</button>
-  <button class="v-btn" data-variant="clean">깔끔 버전</button>
-  <button class="v-btn" data-variant="logo">로고 버전</button>
-  <button class="v-btn" data-variant="font">영문폰트 버전</button>
-  <button class="v-btn" data-variant="0903">수정 0903</button>
-</div>
-
 <div id="load-state">불러오는 중입니다…</div>
 
 <div id="page" class="hidden">
@@ -43,8 +35,7 @@
 
   <!-- 2. 인사말 -->
   <section class="rv" data-screen-label="인사말">
-    <div class="eyebrow-en has-logo">Invitation</div>
-    <img class="eyebrow-logo" src="assets/logos/invitation.png" alt="Invitation">
+    <div class="eyebrow-en">Invitation</div>
     <div class="eyebrow-kr">소중한 분들을 초대합니다</div>
     <p class="greeting-text" id="greeting-text"></p>
   </section>
@@ -67,8 +58,7 @@
 
   <!-- 4. 웨딩 인터뷰 -->
   <section class="rv" data-screen-label="웨딩 인터뷰">
-    <div class="eyebrow-en has-logo">Interview</div>
-    <img class="eyebrow-logo" src="assets/logos/interview.png" alt="Interview">
+    <div class="eyebrow-en">Interview</div>
     <div class="eyebrow-kr">우리 두 사람의 이야기</div>
     <div class="interview-photo img-slot" id="slot-interview"></div>
     <p class="interview-lead">결혼을 앞둔 저희 두 사람의<br>솔직한 마음을 담아보았습니다.</p>
@@ -78,44 +68,34 @@
     </div>
   </section>
 
-  <!-- 5. 게스트스냅 -->
-  <section class="rv" data-screen-label="게스트스냅" id="sec-snap">
-    <div class="eyebrow-en has-logo">Guest Snap</div>
-    <img class="eyebrow-logo" src="assets/logos/guestsnap.png" alt="Guest Snap">
-    <div class="eyebrow-kr">게스트스냅</div>
-    <p class="snap-lead">예식에서 담아주신 저희의 순간들을<br>보내주시면 소중히 간직하겠습니다.</p>
-    <div class="snap-link-wrap">
-      <button class="solid-btn" id="btn-snap-upload">사진 보내기</button>
-      <input type="file" id="snap-file-input" accept="image/*" multiple class="hidden">
-    </div>
-    <div class="snap-link-wrap" style="margin-top:12px">
-      <a class="snap-link" id="snap-link" href="#" target="_blank" rel="noopener">사진 공유하러 가기</a>
-    </div>
-  </section>
-
-  <!-- 6. 웨딩 갤러리 -->
+  <!-- 5. 웨딩 갤러리 -->
   <section class="rv sec-gallery" data-screen-label="갤러리">
     <div class="head">
-      <div class="eyebrow-en has-logo">Gallery</div>
-      <img class="eyebrow-logo" src="assets/logos/gallery.png" alt="Gallery">
+      <div class="eyebrow-en">Gallery</div>
       <div class="eyebrow-kr">웨딩 갤러리</div>
     </div>
     <div class="hscroll" id="gallery-scroll"></div>
     <div class="hscroll-hint">← 옆으로 넘겨보세요 →</div>
   </section>
 
-  <!-- 7. 우리의 시간 -->
+  <!-- 6. 우리의 시간 -->
   <section class="rv" data-screen-label="우리의 시간">
     <div class="eyebrow-en">Our Story</div>
     <div class="eyebrow-kr">우리의 시간</div>
     <div class="story-list" id="story-list"></div>
   </section>
 
-  <!-- 8. 예식 안내 -->
+  <!-- 7. 예식 안내 (사진 - 달력 - 타이머 순) -->
   <section class="rv sec-info" data-screen-label="예식 안내">
     <div class="head">
       <div class="eyebrow-en">Information</div>
       <div class="eyebrow-kr">예식 안내</div>
+      <div class="info-photo img-slot" id="slot-info"></div>
+      <div class="info-card">
+        <div class="info-date" id="info-date"></div>
+        <div class="info-time" id="info-time"></div>
+        <div class="calendar-grid" id="calendar-grid"></div>
+      </div>
       <div class="countdown-title" id="countdown-title"></div>
       <div class="countdown-row">
         <div class="countdown-item"><div class="countdown-circle" id="cd-days">–</div><div class="countdown-label">Days</div></div>
@@ -123,17 +103,12 @@
         <div class="countdown-item"><div class="countdown-circle" id="cd-mins">–</div><div class="countdown-label">Minutes</div></div>
         <div class="countdown-item"><div class="countdown-circle" id="cd-secs">–</div><div class="countdown-label">Seconds</div></div>
       </div>
-      <div class="info-card">
-        <div class="info-date" id="info-date"></div>
-        <div class="info-time" id="info-time"></div>
-        <div class="calendar-grid" id="calendar-grid"></div>
-      </div>
     </div>
     <div class="hscroll" id="notice-scroll"></div>
     <div class="hscroll-hint">← 옆으로 넘겨보세요 →</div>
   </section>
 
-  <!-- 9. 오시는 길 -->
+  <!-- 8. 오시는 길 -->
   <section class="rv" data-screen-label="오시는 길">
     <div class="eyebrow-en">Location</div>
     <div class="eyebrow-kr">오시는 길</div>
@@ -163,7 +138,7 @@
     </div>
   </section>
 
-  <!-- 10. 참석 여부 -->
+  <!-- 9. 참석 여부 -->
   <section class="rv" data-screen-label="참석 여부">
     <div class="eyebrow-en">R.S.V.P.</div>
     <div class="eyebrow-kr">참석 여부를 전해주세요</div>
@@ -215,12 +190,30 @@
     </div>
   </section>
 
-  <!-- 11. 계좌번호 -->
+  <!-- 10. 계좌번호 -->
   <section class="rv" data-screen-label="계좌번호">
     <div class="eyebrow-en">With Love</div>
     <div class="eyebrow-kr">마음 전하실 곳</div>
     <p class="account-lead">참석이 어려워 축하의 마음을<br>전하고 싶으신 분들을 위해 기재했습니다.</p>
     <div class="account-groups" id="account-groups"></div>
+  </section>
+
+  <!-- 11. 방명록 -->
+  <section class="rv" data-screen-label="방명록">
+    <div class="eyebrow-en">Guestbook</div>
+    <div class="eyebrow-kr">방명록</div>
+    <p class="guestbook-lead">축하의 마음을 자유롭게<br>남겨주세요.</p>
+    <div class="guestbook-form">
+      <input type="text" id="guestbook-name-input" placeholder="성함">
+      <textarea id="guestbook-message-input" placeholder="축하 메시지를 남겨주세요" rows="3"></textarea>
+      <input type="password" id="guestbook-password-input" inputmode="numeric" maxlength="10" placeholder="수정용 비밀번호 (숫자)">
+      <button class="solid-btn-block" id="btn-guestbook-submit">방명록 남기기</button>
+    </div>
+    <div class="hscroll guestbook-carousel" id="guestbook-carousel"></div>
+    <div class="hscroll-hint hidden" id="guestbook-hint">← 옆으로 넘겨보세요 →</div>
+    <div class="center-btn-row">
+      <a class="outline-btn" href="guestbook.html">방명록 전체보기</a>
+    </div>
   </section>
 
   <!-- 12. 마무리 -->
@@ -246,5 +239,6 @@
 
 <script src="config.js"></script>
 <script src="script.js"></script>
+<script src="guestbook.js"></script>
 </body>
 </html>

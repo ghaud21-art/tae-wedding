@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>방명록 — 태경 ♥ 지영</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="gb-page-bar">
+  <button class="gb-back-btn" id="guestbook-back-btn" aria-label="뒤로가기">‹</button>
+  <div class="gb-page-title">방명록</div>
+  <div class="gb-page-count" id="guestbook-page-count">총 0개</div>
+</div>
+
+<div id="page" class="gb-page">
+  <div class="guestbook-page-list" id="guestbook-page-list"></div>
+</div>
+
+<div id="toast"></div>
+
+<script src="config.js"></script>
+<script src="script.js"></script>
+<script src="guestbook.js"></script>
+<script>initGuestbookPage();</script>
+</body>
+</html>
