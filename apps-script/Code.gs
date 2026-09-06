@@ -158,6 +158,7 @@ function setupAll() {
   applyRealInfo();
   fixRsvpHeaders();
   fixGuestbookHeaders();
+  fixDiningNotice();
   colorEditableCells();
 }
 
@@ -173,10 +174,12 @@ function applyRealInfo() {
     weddingTime: '16:30',
     venueName: '메리빌리아 더 프레스티지',
     venueAddress: '경기도 수원시 (정확한 주소로 바꿔주세요)',
+    hallName: '2층 컨벤션홀',
     accentColor: '#f0dfa0',
     heroGroomEn: 'KIMTAEKYUNG',
     heroBrideEn: 'KIM JIYOUNG',
     heroVenueEn: 'MERRYVILIA THE PRESTIGE, SUWON',
+    flowerShopUrl: 'https://www.quickflowers.co.kr/products/product-category/9',
   };
   const last = sh.getLastRow();
   const keys = sh.getRange(1, 1, last, 1).getValues().map(function (r) { return String(r[0]).trim(); });
@@ -185,6 +188,20 @@ function applyRealInfo() {
     if (idx >= 0) sh.getRange(idx + 1, 2).setValue(vals[k]);
     else sh.appendRow([k, vals[k]]);
   });
+}
+
+// "안내사항" 탭을 식사 안내 한 줄만 남깁니다 (화환 안내는 별도 섹션으로,
+// 주차 안내는 오시는 길에 이미 있어 중복이라 뺐습니다).
+function fixDiningNotice() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sh = ss.getSheetByName('안내사항');
+  if (!sh) return;
+  const last = sh.getLastRow();
+  if (last > 1) sh.getRange(2, 1, last - 1, 4).clearContent();
+  sh.getRange(2, 1, 1, 4).setValues([[
+    '1', 'Dining', '식사 안내',
+    '예식 후 동일한 2층 연회장에서 뷔페 식사가 준비됩니다.\n식권은 접수처에서 받아주세요.',
+  ]]);
 }
 
 function fixAccountsTab() {
@@ -276,6 +293,7 @@ function setupSheet() {
     ['weddingTime', '13:00'],
     ['venueName', '그랜드호텔 3층 라벤더홀'],
     ['venueAddress', '서울특별시 강남구 테헤란로 123'],
+    ['hallName', '3층 라벤더홀'],
     ['groomPhone', '010-1234-5678'],
     ['bridePhone', '010-8765-4321'],
     ['subwayInfo', '2호선 강남역 3번 출구 도보 5분'],
@@ -289,6 +307,7 @@ function setupSheet() {
     ['interviewImageId', ''],
     ['endingImageId', ''],
     ['snapShareUrl', ''],
+    ['flowerShopUrl', ''],
   ]);
 
   fillSheet('인터뷰', ['순서', '질문', '답변'], [
@@ -313,9 +332,7 @@ function setupSheet() {
   ]);
 
   fillSheet('안내사항', ['순서', '영문', '제목', '설명'], [
-    ['1', 'Dining', '식사 안내', '예식 후 3층 연회장에서 뷔페 식사가 준비됩니다. 식권은 접수처에서 받아주세요.'],
-    ['2', 'Flower', '화환 안내', '축하 화환은 정중히 사양합니다. 마음만 감사히 받겠습니다.'],
-    ['3', 'Parking', '주차 안내', '지하 주차장 이용 시 접수처에서 주차 등록을 해주시면 2시간 무료입니다.'],
+    ['1', 'Dining', '식사 안내', '예식 후 동일한 층 연회장에서 뷔페 식사가 준비됩니다. 식권은 접수처에서 받아주세요.'],
   ]);
 
   fillSheet('계좌번호', ['구분', '예금주', '은행', '계좌번호'], [

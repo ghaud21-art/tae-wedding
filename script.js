@@ -7,7 +7,7 @@ const CFG = window.WEDDING_CONFIG;
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
 /* ---------------- 구글 시트 읽기 ----------------
- * 시트는 탭 여러 개로 되어 있습니다: 설정 / 인터뷰 / 갤러리 / 우리의시간 / 안내사항 / 계좌번호 / 참석여부
+ * 시트는 탭 여러 개로 되어 있습니다: 설정 / 인터뷰 / 갤러리 / 우리의시간 / 안내사항(식사 안내) / 계좌번호 / 참석여부 / 방명록
  * 신랑신부가 실제로 고치는 값들은 전부 "설정" 탭 안에 있습니다. */
 
 async function fetchSheetRows(sheetName) {
@@ -212,7 +212,6 @@ function renderPage(data) {
   const heroId = (photos.hero && photos.hero[0]) || info.heroImageId;
   const interviewId = (photos.interview && photos.interview[0]) || info.interviewImageId;
   const infoPhotoId = heroId;
-  const endingId = (photos.ending && photos.ending[0]) || info.endingImageId;
   const finalGalleryIds = (photos.gallery && photos.gallery.length) ? photos.gallery : galleryIds;
 
   // 1. 히어로 — 사진 (드라이브 > 시트 ID > 저장소 기본 사진 순)
@@ -277,21 +276,7 @@ function renderPage(data) {
     interviewBtn.textContent = open ? '인터뷰 접기' : '인터뷰 읽어보기';
   });
 
-  // 5. 갤러리
-  const galleryScroll = document.getElementById('gallery-scroll');
-  galleryScroll.innerHTML = '';
-  finalGalleryIds.forEach((gid, i) => {
-    const wrap = document.createElement('div');
-    wrap.className = 'gallery-item';
-    const slot = document.createElement('div');
-    slot.className = 'img-slot shape-rounded';
-    slot.style.borderRadius = '6px';
-    setImgSlot(slot, gid, `갤러리 사진 ${i + 1}`);
-    wrap.appendChild(slot);
-    galleryScroll.appendChild(wrap);
-  });
-
-  // 6. 우리의 시간
+  // 5. 우리의 시간
   const storyList = document.getElementById('story-list');
   storyList.innerHTML = story.map(s => `
     <div class="story-row">
@@ -304,27 +289,24 @@ function renderPage(data) {
     </div>
   `).join('');
 
-  // 7. 예식 안내 (사진 - 달력 - 타이머)
+  // 6. 예식 안내 (사진 - 달력 - 타이머)
   const infoSlot = document.getElementById('slot-info');
   if (infoPhotoId) setImgSlot(infoSlot, infoPhotoId, '예식 사진');
   else setImgSlotSrc(infoSlot, 'assets/hero.jpg', '예식 사진');
-  document.getElementById('info-date').textContent = weddingDate
-    ? `${weddingDate.getFullYear()}년 ${weddingDate.getMonth() + 1}월 ${weddingDate.getDate()}일 ${WEEKDAYS[weddingDate.getDay()]}요일` : '';
-  document.getElementById('info-time').textContent = [formatKoreanTime(info.weddingTime), info.venueName].filter(Boolean).join(' · ');
+  document.getElementById('info-line').textContent = weddingDate
+    ? [
+        `${weddingDate.getFullYear()}년 ${weddingDate.getMonth() + 1}월 ${weddingDate.getDate()}일 ${WEEKDAYS[weddingDate.getDay()]}요일`,
+        formatKoreanTime(info.weddingTime),
+        info.venueName,
+        info.hallName,
+      ].filter(Boolean).join(' ㅣ ')
+    : '';
   renderCalendar(document.getElementById('calendar-grid'), weddingDate);
   document.getElementById('countdown-title').innerHTML =
     `태경 <span style="color:var(--accent)">♥</span> 지영 <b>결혼식까지</b>`;
   initCountdown(weddingDate);
-  const noticeScroll = document.getElementById('notice-scroll');
-  noticeScroll.innerHTML = notices.map(n => `
-    <div class="notice-card">
-      <div class="notice-en">${escapeHtml(n.en)}</div>
-      <div class="notice-title">${escapeHtml(n.title)}</div>
-      <div class="notice-desc">${nl2br(escapeHtml(n.desc))}</div>
-    </div>
-  `).join('');
 
-  // 8. 오시는 길
+  // 7. 오시는 길
   document.getElementById('venue-name-2').textContent = info.venueName || '';
   document.getElementById('venue-address').textContent = info.venueAddress || '';
   document.getElementById('btn-copy-addr').addEventListener('click', () => copyText(info.venueAddress || '', '주소가 복사되었습니다'));
@@ -336,6 +318,12 @@ function renderPage(data) {
   document.getElementById('transit-subway').innerHTML = nl2br(info.subwayInfo);
   document.getElementById('transit-bus').innerHTML = nl2br(info.busInfo);
   document.getElementById('transit-parking').innerHTML = nl2br(info.parkingInfo);
+
+  // 8. 식사 안내
+  const dining = notices[0] || {};
+  document.getElementById('dining-en').textContent = dining.en || 'Dining';
+  document.getElementById('dining-title').textContent = dining.title || '식사 안내';
+  document.getElementById('dining-desc').innerHTML = nl2br(escapeHtml(dining.desc));
 
   // 9. 참석 여부
   initRsvp(info);
@@ -369,18 +357,30 @@ function renderPage(data) {
     accountGroupsEl.appendChild(groupEl);
   });
 
-  // 11. 방명록 (guestbook.js)
+  // 11. 축하 화환 보내기
+  document.getElementById('btn-flower-shop').href = info.flowerShopUrl || '#';
+
+  // 12. 방명록 (guestbook.js)
   initGuestbookSection();
 
-  // 12. 마무리
-  setImgSlot(document.getElementById('slot-ending'), endingId, '마무리 사진');
+  // 13. 갤러리 (인스타그램 피드 느낌의 그리드)
+  const galleryGrid = document.getElementById('gallery-grid');
+  galleryGrid.innerHTML = '';
+  finalGalleryIds.forEach((gid, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'img-slot gallery-grid-item';
+    setImgSlot(slot, gid, `갤러리 사진 ${i + 1}`);
+    galleryGrid.appendChild(slot);
+  });
+
+  // 14. 마무리
   document.getElementById('ending-sign').textContent = weddingDate
     ? `${info.groomName} & ${info.brideName} · ${weddingDate.getFullYear()}. ${weddingDate.getMonth() + 1}. ${weddingDate.getDate()}`
     : `${info.groomName} & ${info.brideName}`;
   document.getElementById('btn-share').addEventListener('click', () => {
     const shareData = {
       title: `${info.groomName} ♥ ${info.brideName} 결혼합니다`,
-      text: `${document.getElementById('info-date').textContent} ${document.getElementById('info-time').textContent}`,
+      text: document.getElementById('info-line').textContent,
       url: location.href
     };
     if (navigator.share) navigator.share(shareData).catch(() => {});

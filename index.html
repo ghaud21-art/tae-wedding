@@ -68,32 +68,21 @@
     </div>
   </section>
 
-  <!-- 5. 웨딩 갤러리 -->
-  <section class="rv sec-gallery" data-screen-label="갤러리">
-    <div class="head">
-      <div class="eyebrow-en">Gallery</div>
-      <div class="eyebrow-kr">웨딩 갤러리</div>
-    </div>
-    <div class="hscroll" id="gallery-scroll"></div>
-    <div class="hscroll-hint">← 옆으로 넘겨보세요 →</div>
-  </section>
-
-  <!-- 6. 우리의 시간 -->
+  <!-- 5. 우리의 시간 -->
   <section class="rv" data-screen-label="우리의 시간">
     <div class="eyebrow-en">Our Story</div>
     <div class="eyebrow-kr">우리의 시간</div>
     <div class="story-list" id="story-list"></div>
   </section>
 
-  <!-- 7. 예식 안내 (사진 - 달력 - 타이머 순) -->
+  <!-- 6. 예식 안내 (사진 - 달력 - 타이머 순) -->
   <section class="rv sec-info" data-screen-label="예식 안내">
     <div class="head">
       <div class="eyebrow-en">Information</div>
       <div class="eyebrow-kr">예식 안내</div>
       <div class="info-photo img-slot" id="slot-info"></div>
       <div class="info-card">
-        <div class="info-date" id="info-date"></div>
-        <div class="info-time" id="info-time"></div>
+        <div class="info-line" id="info-line"></div>
         <div class="calendar-grid" id="calendar-grid"></div>
       </div>
       <div class="countdown-title" id="countdown-title"></div>
@@ -104,11 +93,9 @@
         <div class="countdown-item"><div class="countdown-circle" id="cd-secs">–</div><div class="countdown-label">Seconds</div></div>
       </div>
     </div>
-    <div class="hscroll" id="notice-scroll"></div>
-    <div class="hscroll-hint">← 옆으로 넘겨보세요 →</div>
   </section>
 
-  <!-- 8. 오시는 길 -->
+  <!-- 7. 오시는 길 -->
   <section class="rv" data-screen-label="오시는 길">
     <div class="eyebrow-en">Location</div>
     <div class="eyebrow-kr">오시는 길</div>
@@ -136,6 +123,13 @@
       <div><b>버스</b><br><span id="transit-bus"></span></div>
       <div><b>주차</b><br><span id="transit-parking"></span></div>
     </div>
+  </section>
+
+  <!-- 8. 식사 안내 -->
+  <section class="rv" data-screen-label="식사 안내">
+    <div class="eyebrow-en" id="dining-en">Dining</div>
+    <div class="eyebrow-kr" id="dining-title">식사 안내</div>
+    <p class="dining-desc" id="dining-desc"></p>
   </section>
 
   <!-- 9. 참석 여부 -->
@@ -190,7 +184,7 @@
     </div>
   </section>
 
-  <!-- 10. 계좌번호 -->
+  <!-- 10. 계좌번호 (마음 전하실 곳) -->
   <section class="rv" data-screen-label="계좌번호">
     <div class="eyebrow-en">With Love</div>
     <div class="eyebrow-kr">마음 전하실 곳</div>
@@ -198,7 +192,17 @@
     <div class="account-groups" id="account-groups"></div>
   </section>
 
-  <!-- 11. 방명록 -->
+  <!-- 11. 축하 화환 보내기 -->
+  <section class="rv" data-screen-label="축하 화환 보내기">
+    <div class="eyebrow-en">Flower</div>
+    <div class="eyebrow-kr">축하 화환 보내기</div>
+    <p class="flower-lead">축하의 마음을 화환으로<br>전하고 싶으신 분들을 위해 마련했습니다.</p>
+    <div class="center-btn-row">
+      <a class="solid-btn" id="btn-flower-shop" href="#" target="_blank" rel="noopener">화환 주문하러 가기</a>
+    </div>
+  </section>
+
+  <!-- 12. 방명록 -->
   <section class="rv" data-screen-label="방명록">
     <div class="eyebrow-en">Guestbook</div>
     <div class="eyebrow-kr">방명록</div>
@@ -216,12 +220,17 @@
     </div>
   </section>
 
-  <!-- 12. 마무리 -->
-  <section class="rv sec-ending" data-screen-label="마무리">
-    <div class="ending-photo-wrap">
-      <div class="img-slot" id="slot-ending"></div>
-      <div class="ending-fade"></div>
+  <!-- 13. 웨딩 갤러리 -->
+  <section class="rv sec-gallery" data-screen-label="갤러리">
+    <div class="head">
+      <div class="eyebrow-en">Gallery</div>
+      <div class="eyebrow-kr">웨딩 갤러리</div>
     </div>
+    <div class="gallery-grid" id="gallery-grid"></div>
+  </section>
+
+  <!-- 14. 마무리 (사진 없음) -->
+  <section class="rv sec-ending" data-screen-label="마무리">
     <div class="ending-body">
       <div class="ending-title">Thank you</div>
       <p class="ending-lead">저희 두 사람의 시작을<br>함께해 주셔서 감사합니다.</p>
