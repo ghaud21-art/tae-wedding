@@ -162,7 +162,7 @@ section{padding:80px 34px}
 }
 .countdown-label{font-family:'Noto Sans KR',sans-serif;font-weight:300;font-size:10.5px;letter-spacing:1.5px;color:#a89e94;text-transform:uppercase}
 .info-card{margin:40px auto 0;max-width:280px;padding:0 12px}
-.info-line{font-family:'Noto Sans KR',sans-serif;font-weight:400;font-size:12px;letter-spacing:.2px;line-height:1.9;color:#5c554e;text-align:center;text-wrap:balance}
+.info-line{font-family:'Noto Sans KR',sans-serif;font-weight:400;font-size:12px;letter-spacing:.2px;line-height:1.9;color:#5c554e;text-align:center}
 .calendar-grid{margin-top:26px;display:grid;grid-template-columns:repeat(7,1fr);gap:8px;font-family:'Noto Sans KR',sans-serif;font-weight:300;font-size:12px;color:#8a8078}
 .calendar-grid .cell{height:26px;line-height:26px;border-radius:50%;text-align:center}
 

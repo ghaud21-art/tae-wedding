@@ -293,14 +293,16 @@ function renderPage(data) {
   const infoSlot = document.getElementById('slot-info');
   if (infoPhotoId) setImgSlot(infoSlot, infoPhotoId, '예식 사진');
   else setImgSlotSrc(infoSlot, 'assets/hero.jpg', '예식 사진');
-  document.getElementById('info-line').textContent = weddingDate
-    ? [
-        `${weddingDate.getFullYear()}년 ${weddingDate.getMonth() + 1}월 ${weddingDate.getDate()}일 ${WEEKDAYS[weddingDate.getDay()]}요일`,
-        formatKoreanTime(info.weddingTime),
-        info.venueName,
-        info.hallName,
-      ].filter(Boolean).join(' ㅣ ')
-    : '';
+  if (weddingDate) {
+    const dateLine = [
+      `${weddingDate.getFullYear()}년 ${weddingDate.getMonth() + 1}월 ${weddingDate.getDate()}일 ${WEEKDAYS[weddingDate.getDay()]}요일`,
+      formatKoreanTime(info.weddingTime),
+    ].filter(Boolean).join(' ㅣ ');
+    const venueLine = [info.venueName, info.hallName].filter(Boolean).join(' ㅣ ');
+    document.getElementById('info-line').innerHTML = [dateLine, venueLine].filter(Boolean).join('<br>');
+  } else {
+    document.getElementById('info-line').textContent = '';
+  }
   renderCalendar(document.getElementById('calendar-grid'), weddingDate);
   document.getElementById('countdown-title').innerHTML =
     `태경 <span style="color:var(--accent)">♥</span> 지영 <b>결혼식까지</b>`;
@@ -380,7 +382,7 @@ function renderPage(data) {
   document.getElementById('btn-share').addEventListener('click', () => {
     const shareData = {
       title: `${info.groomName} ♥ ${info.brideName} 결혼합니다`,
-      text: document.getElementById('info-line').textContent,
+      text: document.getElementById('info-line').innerText,
       url: location.href
     };
     if (navigator.share) navigator.share(shareData).catch(() => {});
