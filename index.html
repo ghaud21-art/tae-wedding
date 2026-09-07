@@ -75,7 +75,16 @@
     <div class="story-list" id="story-list"></div>
   </section>
 
-  <!-- 6. 예식 안내 (사진 - 달력 - 타이머 순) -->
+  <!-- 6. 웨딩 갤러리 -->
+  <section class="rv sec-gallery" data-screen-label="갤러리">
+    <div class="head">
+      <div class="eyebrow-en">Gallery</div>
+      <div class="eyebrow-kr">웨딩 갤러리</div>
+    </div>
+    <div class="gallery-grid" id="gallery-grid"></div>
+  </section>
+
+  <!-- 7. 예식 안내 (사진 - 달력 - 타이머 순) -->
   <section class="rv sec-info" data-screen-label="예식 안내">
     <div class="head">
       <div class="eyebrow-en">Information</div>
@@ -95,44 +104,7 @@
     </div>
   </section>
 
-  <!-- 7. 오시는 길 -->
-  <section class="rv" data-screen-label="오시는 길">
-    <div class="eyebrow-en">Location</div>
-    <div class="eyebrow-kr">오시는 길</div>
-    <div class="venue-name" id="venue-name-2"></div>
-    <div class="venue-address" id="venue-address"></div>
-    <div class="copy-addr-row"><button class="outline-btn-sm" id="btn-copy-addr">주소 복사</button></div>
-    <div class="map-embed">
-      <div id="daumRoughmapContainer1788391782836" class="root_daum_roughmap root_daum_roughmap_landing"></div>
-    </div>
-    <script charset="UTF-8" class="daum_roughmap_loader_script" src="https://ssl.daumcdn.net/dmaps/map_js_init/roughmapLoader.js"></script>
-    <script charset="UTF-8">
-      new daum.roughmap.Lander({
-        "timestamp" : "1788391782836",
-        "key" : "u34xm8nwz4h",
-        "mapWidth" : "360",
-        "mapHeight" : "240"
-      }).render();
-    </script>
-    <div class="map-links">
-      <a id="link-kakao" href="#" target="_blank" rel="noopener">카카오맵</a>
-      <a id="link-naver" href="#" target="_blank" rel="noopener">네이버지도</a>
-    </div>
-    <div class="transit-list">
-      <div><b>지하철</b><br><span id="transit-subway"></span></div>
-      <div><b>버스</b><br><span id="transit-bus"></span></div>
-      <div><b>주차</b><br><span id="transit-parking"></span></div>
-    </div>
-  </section>
-
-  <!-- 8. 식사 안내 -->
-  <section class="rv" data-screen-label="식사 안내">
-    <div class="eyebrow-en" id="dining-en">Dining</div>
-    <div class="eyebrow-kr" id="dining-title">식사 안내</div>
-    <p class="dining-desc" id="dining-desc"></p>
-  </section>
-
-  <!-- 9. 참석 여부 -->
+  <!-- 8. 참석 여부 -->
   <section class="rv" data-screen-label="참석 여부">
     <div class="eyebrow-en">R.S.V.P.</div>
     <div class="eyebrow-kr">참석 여부를 전해주세요</div>
@@ -184,6 +156,36 @@
     </div>
   </section>
 
+  <!-- 9. 오시는 길 -->
+  <section class="rv" data-screen-label="오시는 길">
+    <div class="eyebrow-en">Location</div>
+    <div class="eyebrow-kr">오시는 길</div>
+    <div class="venue-name" id="venue-name-2"></div>
+    <div class="venue-address" id="venue-address"></div>
+    <div class="copy-addr-row"><button class="outline-btn-sm" id="btn-copy-addr">주소 복사</button></div>
+    <div class="map-embed">
+      <div id="daumRoughmapContainer1788391782836" class="root_daum_roughmap root_daum_roughmap_landing"></div>
+    </div>
+    <script charset="UTF-8" class="daum_roughmap_loader_script" src="https://ssl.daumcdn.net/dmaps/map_js_init/roughmapLoader.js"></script>
+    <script charset="UTF-8">
+      new daum.roughmap.Lander({
+        "timestamp" : "1788391782836",
+        "key" : "u34xm8nwz4h",
+        "mapWidth" : "360",
+        "mapHeight" : "240"
+      }).render();
+    </script>
+    <div class="map-links">
+      <a id="link-kakao" href="#" target="_blank" rel="noopener">카카오맵</a>
+      <a id="link-naver" href="#" target="_blank" rel="noopener">네이버지도</a>
+    </div>
+    <div class="transit-list">
+      <div><b>지하철</b><br><span id="transit-subway"></span></div>
+      <div><b>버스</b><br><span id="transit-bus"></span></div>
+      <div><b>주차</b><br><span id="transit-parking"></span></div>
+    </div>
+  </section>
+
   <!-- 10. 계좌번호 (마음 전하실 곳) -->
   <section class="rv" data-screen-label="계좌번호">
     <div class="eyebrow-en">With Love</div>
@@ -213,23 +215,13 @@
       <input type="password" id="guestbook-password-input" inputmode="numeric" maxlength="10" placeholder="수정용 비밀번호 (숫자)">
       <button class="solid-btn-block" id="btn-guestbook-submit">방명록 남기기</button>
     </div>
-    <div class="hscroll guestbook-carousel" id="guestbook-carousel"></div>
-    <div class="hscroll-hint hidden" id="guestbook-hint">← 옆으로 넘겨보세요 →</div>
+    <div class="guestbook-list" id="guestbook-list"></div>
     <div class="center-btn-row">
       <a class="outline-btn" href="guestbook.html">방명록 전체보기</a>
     </div>
   </section>
 
-  <!-- 13. 웨딩 갤러리 -->
-  <section class="rv sec-gallery" data-screen-label="갤러리">
-    <div class="head">
-      <div class="eyebrow-en">Gallery</div>
-      <div class="eyebrow-kr">웨딩 갤러리</div>
-    </div>
-    <div class="gallery-grid" id="gallery-grid"></div>
-  </section>
-
-  <!-- 14. 마무리 (사진 없음) -->
+  <!-- 13. 마무리 (사진 없음) -->
   <section class="rv sec-ending" data-screen-label="마무리">
     <div class="ending-body">
       <div class="ending-title">Thank you</div>

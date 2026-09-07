@@ -166,9 +166,6 @@ section{padding:80px 34px}
 .calendar-grid{margin-top:26px;display:grid;grid-template-columns:repeat(7,1fr);gap:8px;font-family:'Noto Sans KR',sans-serif;font-weight:300;font-size:12px;color:#8a8078}
 .calendar-grid .cell{height:26px;line-height:26px;border-radius:50%;text-align:center}
 
-/* ---------- section: dining ---------- */
-.dining-desc{margin:32px 0 0;font-family:'Noto Sans KR',sans-serif;font-weight:300;font-size:13px;line-height:2;color:#6e675f;text-align:center}
-
 /* ---------- section: flower ---------- */
 .flower-lead{margin:32px 0 0;font-size:12.5px;line-height:2;color:#6e675f;text-align:center}
 
@@ -233,30 +230,19 @@ section{padding:80px 34px}
 .guestbook-form input[type=text],
 .guestbook-form input[type=password]{font-family:'Noto Sans KR',sans-serif;font-size:14px;padding:12px 14px;border:1px solid #eee2d8;border-radius:10px;outline:none;color:#5c554e;width:100%}
 .guestbook-form textarea{font-family:'Noto Sans KR',sans-serif;font-size:13.5px;line-height:1.7;padding:12px 14px;border:1px solid #eee2d8;border-radius:10px;outline:none;color:#5c554e;width:100%;resize:vertical}
-.guestbook-carousel{margin-top:28px}
 .guestbook-empty{text-align:center;font-family:'Noto Sans KR',sans-serif;font-size:12.5px;color:#b3a99e;padding:20px 0}
 
-/* 편지지 카드 — 캐러셀(고정 250x250)과 목록/확대(반응형이지만 width=height 고정값)에서 공용 */
-.guestbook-card{
-  position:relative;flex:none;overflow:hidden;
-  background:url('assets/guestbook-card.png') center/cover no-repeat;
-}
-.guestbook-carousel .guestbook-card{width:250px;height:250px}
-.guestbook-list-card{width:min(84vw,330px);height:min(84vw,330px)}
-.guestbook-card-inner{
-  position:absolute;inset:0;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  text-align:center;padding:27% 20%;overflow:hidden;
-}
-.guestbook-card-message{
-  flex:0 1 auto;min-height:0;max-height:100%;overflow-y:auto;overflow-wrap:break-word;word-break:break-word;
-  font-family:'Noto Sans KR',sans-serif;font-size:12px;line-height:1.65;color:#5c554e;white-space:pre-line;
-}
-.guestbook-card-from{flex-shrink:0;margin-top:10px;font-family:'Crimson Pro',serif;font-weight:300;font-size:14px;color:var(--accent-deep)}
-.guestbook-card-date{flex-shrink:0;margin-top:2px;font-family:'Noto Sans KR',sans-serif;font-weight:300;font-size:9.5px;color:#b3a99e}
+/* 담백한 리스트 카드 — index.html 미리보기와 guestbook.html 전체보기 공용 */
+.guestbook-list{margin-top:28px;display:flex;flex-direction:column;gap:10px}
+.guestbook-row{background:#fff;border:1px solid #f1ece0;border-radius:14px;padding:18px 20px;text-align:left}
+.guestbook-row-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.guestbook-row-name{font-family:'Nanum Myeongjo',serif;font-weight:700;font-size:13.5px;color:#5c554e}
+.guestbook-row-message{margin-top:8px;font-family:'Noto Sans KR',sans-serif;font-size:12.5px;line-height:1.8;color:#7d746b;white-space:pre-line;word-break:break-word}
+.guestbook-row-date{margin-top:8px;font-family:'Noto Sans KR',sans-serif;font-weight:300;font-size:10.5px;color:#b3a99e}
 .guestbook-edit-btn{
-  position:absolute;right:12px;bottom:12px;width:26px;height:26px;border-radius:50%;
-  border:1px solid var(--accent-soft);background:#fff;color:var(--accent-deep);font-size:12px;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;
+  flex:none;width:24px;height:24px;border-radius:50%;
+  border:1px solid var(--accent-soft);background:#fff;color:var(--accent-deep);font-size:11px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
 }
 
 /* ---------- guestbook.html: 전체보기 페이지 ---------- */
@@ -270,10 +256,9 @@ section{padding:80px 34px}
 .gb-page-title{flex:1;font-family:'Nanum Myeongjo',serif;font-size:15px;color:#5c554e;text-align:center}
 .gb-page-count{flex:none;font-family:'Noto Sans KR',sans-serif;font-size:11.5px;color:#a89e94}
 .gb-page{padding-top:70px}
-.guestbook-page-list{padding:24px 34px 60px;display:flex;flex-direction:column;align-items:center;gap:18px}
-.guestbook-list-card{cursor:pointer}
+.guestbook-page-list{padding:24px 34px 60px;display:flex;flex-direction:column;gap:10px}
 
-/* ---------- 방명록 모달 (수정 / 확대보기, 양쪽 페이지 공용) ---------- */
+/* ---------- 방명록 수정 모달 (양쪽 페이지 공용) ---------- */
 .gb-modal-overlay{
   position:fixed;inset:0;z-index:200;background:rgba(74,68,64,.55);
   display:flex;align-items:center;justify-content:center;padding:24px;
@@ -291,9 +276,6 @@ section{padding:80px 34px}
   position:absolute;top:14px;right:14px;width:26px;height:26px;border-radius:50%;
   border:none;background:#f4f1ea;color:#9c8f85;font-size:12px;cursor:pointer;
 }
-.gb-view-box{position:relative}
-.gb-view-box .gb-modal-close{top:-38px;right:0;background:rgba(255,255,255,.85)}
-.guestbook-view-card-inner{width:min(92vw,400px);height:min(92vw,400px)}
 
 /* ---------- section: ending (사진 없음) ---------- */
 .sec-ending{padding-bottom:100px}

@@ -7,7 +7,7 @@ const CFG = window.WEDDING_CONFIG;
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
 /* ---------------- 구글 시트 읽기 ----------------
- * 시트는 탭 여러 개로 되어 있습니다: 설정 / 인터뷰 / 갤러리 / 우리의시간 / 안내사항(식사 안내) / 계좌번호 / 참석여부 / 방명록
+ * 시트는 탭 여러 개로 되어 있습니다: 설정 / 인터뷰 / 갤러리 / 우리의시간 / 계좌번호 / 참석여부 / 방명록
  * 신랑신부가 실제로 고치는 값들은 전부 "설정" 탭 안에 있습니다. */
 
 async function fetchSheetRows(sheetName) {
@@ -199,7 +199,7 @@ function initCountdown(weddingDate) {
 }
 
 function renderPage(data) {
-  const { info, interviews, galleryIds, story, notices, accountGroups } = data;
+  const { info, interviews, galleryIds, story, accountGroups } = data;
 
   // 색상
   const accent = info.accentColor && /^#[0-9a-fA-F]{3,6}$/.test(info.accentColor) ? info.accentColor : '#c1a05e';
@@ -289,7 +289,7 @@ function renderPage(data) {
     </div>
   `).join('');
 
-  // 6. 예식 안내 (사진 - 달력 - 타이머)
+  // 7. 예식 안내 (사진 - 달력 - 타이머)
   const infoSlot = document.getElementById('slot-info');
   if (infoPhotoId) setImgSlot(infoSlot, infoPhotoId, '예식 사진');
   else setImgSlotSrc(infoSlot, 'assets/hero.jpg', '예식 사진');
@@ -308,7 +308,7 @@ function renderPage(data) {
     `태경 <span style="color:var(--accent)">♥</span> 지영 <b>결혼식까지</b>`;
   initCountdown(weddingDate);
 
-  // 7. 오시는 길
+  // 9. 오시는 길
   document.getElementById('venue-name-2').textContent = info.venueName || '';
   document.getElementById('venue-address').textContent = info.venueAddress || '';
   document.getElementById('btn-copy-addr').addEventListener('click', () => copyText(info.venueAddress || '', '주소가 복사되었습니다'));
@@ -321,13 +321,7 @@ function renderPage(data) {
   document.getElementById('transit-bus').innerHTML = nl2br(info.busInfo);
   document.getElementById('transit-parking').innerHTML = nl2br(info.parkingInfo);
 
-  // 8. 식사 안내
-  const dining = notices[0] || {};
-  document.getElementById('dining-en').textContent = dining.en || 'Dining';
-  document.getElementById('dining-title').textContent = dining.title || '식사 안내';
-  document.getElementById('dining-desc').innerHTML = nl2br(escapeHtml(dining.desc));
-
-  // 9. 참석 여부
+  // 8. 참석 여부
   initRsvp(info);
 
   // 10. 계좌번호
@@ -365,7 +359,7 @@ function renderPage(data) {
   // 12. 방명록 (guestbook.js)
   initGuestbookSection();
 
-  // 13. 갤러리 (인스타그램 피드 느낌의 그리드)
+  // 6. 갤러리 (인스타그램 피드 느낌의 그리드)
   const galleryGrid = document.getElementById('gallery-grid');
   galleryGrid.innerHTML = '';
   finalGalleryIds.forEach((gid, i) => {
@@ -375,7 +369,7 @@ function renderPage(data) {
     galleryGrid.appendChild(slot);
   });
 
-  // 14. 마무리
+  // 13. 마무리
   document.getElementById('ending-sign').textContent = weddingDate
     ? `${info.groomName} & ${info.brideName} · ${weddingDate.getFullYear()}. ${weddingDate.getMonth() + 1}. ${weddingDate.getDate()}`
     : `${info.groomName} & ${info.brideName}`;
@@ -508,12 +502,11 @@ function groupAccountRows(rows) {
 }
 
 async function loadData() {
-  const [settingsRows, interviewRows, galleryRows, storyRows, noticeRows, accountRows, photos] = await Promise.all([
+  const [settingsRows, interviewRows, galleryRows, storyRows, accountRows, photos] = await Promise.all([
     fetchSheetRows('설정'),
     fetchSheetRows('인터뷰'),
     fetchSheetRows('갤러리'),
     fetchSheetRows('우리의시간'),
-    fetchSheetRows('안내사항'),
     fetchSheetRows('계좌번호'),
     fetchDrivePhotos(),
   ]);
@@ -522,10 +515,9 @@ async function loadData() {
   const interviews = interviewRows.map(r => ({ q: r[1] || '', a: r[2] || '' }));
   const galleryIds = galleryRows.map(r => r[1] || '').filter(Boolean);
   const story = storyRows.map(r => ({ date: r[1] || '', title: r[2] || '', desc: r[3] || '' }));
-  const notices = noticeRows.map(r => ({ en: r[1] || '', title: r[2] || '', desc: r[3] || '' }));
   const accountGroups = groupAccountRows(accountRows);
 
-  return { info, interviews, galleryIds, story, notices, accountGroups, photos };
+  return { info, interviews, galleryIds, story, accountGroups, photos };
 }
 
 (async function init() {

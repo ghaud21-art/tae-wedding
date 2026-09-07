@@ -11,7 +11,7 @@
  *             - (action 없음) 기존 참석여부(RSVP) 저장 / 게스트스냅 사진 업로드 그대로 지원
  *  - setupAll : 계좌번호 6명(신랑/신랑 부모/신부/신부 부모) 채우기 + 편집 칸 노란색 칠하기 + 방명록/참석여부 헤더 정리
  *               (다른 탭 내용은 건드리지 않아 언제 실행해도 안전)
- *  - setupSheet : 탭 8개를 처음부터 다시 만들기 (⚠ 기존 내용이 초기값으로 덮어써짐)
+ *  - setupSheet : 탭 7개를 처음부터 다시 만들기 (⚠ 기존 내용이 초기값으로 덮어써짐)
  *
  * 사용법:
  *  1. 함수 드롭다운에서 setupAll 선택 → [실행]
@@ -158,7 +158,6 @@ function setupAll() {
   applyRealInfo();
   fixRsvpHeaders();
   fixGuestbookHeaders();
-  fixDiningNotice();
   colorEditableCells();
 }
 
@@ -188,20 +187,6 @@ function applyRealInfo() {
     if (idx >= 0) sh.getRange(idx + 1, 2).setValue(vals[k]);
     else sh.appendRow([k, vals[k]]);
   });
-}
-
-// "안내사항" 탭을 식사 안내 한 줄만 남깁니다 (화환 안내는 별도 섹션으로,
-// 주차 안내는 오시는 길에 이미 있어 중복이라 뺐습니다).
-function fixDiningNotice() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sh = ss.getSheetByName('안내사항');
-  if (!sh) return;
-  const last = sh.getLastRow();
-  if (last > 1) sh.getRange(2, 1, last - 1, 4).clearContent();
-  sh.getRange(2, 1, 1, 4).setValues([[
-    '1', 'Dining', '식사 안내',
-    '예식 후 동일한 2층 연회장에서 뷔페 식사가 준비됩니다.\n식권은 접수처에서 받아주세요.',
-  ]]);
 }
 
 function fixAccountsTab() {
@@ -261,7 +246,6 @@ function colorEditableCells() {
   colorCols('인터뷰', [2, 3]);        // 질문, 답변
   colorCols('갤러리', [2]);           // (예비용) 드라이브파일ID
   colorCols('우리의시간', [2, 3, 4]);  // 날짜, 제목, 설명
-  colorCols('안내사항', [2, 3, 4]);    // 영문, 제목, 설명
   colorCols('계좌번호', [1, 2, 3, 4]); // 전체
   // 참석여부, 방명록 탭은 자동 기록용이라 칠하지 않습니다.
 }
@@ -329,10 +313,6 @@ function setupSheet() {
     ['2', '2020. 05', '연인이 되다', '벚꽃이 지던 날, 서로의 마음을 확인했습니다'],
     ['3', '2025. 12', '프러포즈', '겨울 바다 앞에서 평생을 약속했습니다'],
     ['4', '2026. 11', '결혼합니다', '이제 부부라는 이름으로 함께 걷습니다'],
-  ]);
-
-  fillSheet('안내사항', ['순서', '영문', '제목', '설명'], [
-    ['1', 'Dining', '식사 안내', '예식 후 동일한 층 연회장에서 뷔페 식사가 준비됩니다. 식권은 접수처에서 받아주세요.'],
   ]);
 
   fillSheet('계좌번호', ['구분', '예금주', '은행', '계좌번호'], [

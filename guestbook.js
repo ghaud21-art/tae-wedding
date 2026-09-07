@@ -1,5 +1,5 @@
 // ============================================================
-// 방명록 — index.html(캐러셀)과 guestbook.html(전체보기) 공용 로직
+// 방명록 — index.html(목록 미리보기)과 guestbook.html(전체보기) 공용 로직
 // escapeHtml / nl2br / showToast / webAppConfigured 는 script.js에 정의되어 있어
 // 두 페이지 모두 script.js를 먼저 불러온 뒤 이 파일을 불러와야 합니다.
 // ============================================================
@@ -27,18 +27,19 @@ async function editGuestbookEntry(id, name, message, password) {
   return await res.json();
 }
 
-function guestbookCardHtml(entry, cardClass) {
+// 담백한 카드형 리스트 한 줄 (포스트잇/편지지 느낌 없이 기본 스타일)
+function guestbookRowHtml(entry) {
   const editBtn = entry.id
     ? `<button class="guestbook-edit-btn" data-id="${escapeHtml(entry.id)}" aria-label="수정">✎</button>`
     : '';
   return `
-    <div class="${cardClass}" data-id="${escapeHtml(entry.id || '')}">
-      ${editBtn}
-      <div class="guestbook-card-inner">
-        <div class="guestbook-card-message">${nl2br(escapeHtml(entry.message))}</div>
-        <div class="guestbook-card-from">from. ${escapeHtml(entry.name)}</div>
-        <div class="guestbook-card-date">${escapeHtml(entry.date || '')}</div>
+    <div class="guestbook-row" data-id="${escapeHtml(entry.id || '')}">
+      <div class="guestbook-row-top">
+        <span class="guestbook-row-name">${escapeHtml(entry.name)}</span>
+        ${editBtn}
       </div>
+      <div class="guestbook-row-message">${nl2br(escapeHtml(entry.message))}</div>
+      <div class="guestbook-row-date">${escapeHtml(entry.date || '')}</div>
     </div>
   `;
 }
@@ -118,39 +119,39 @@ function openEditModal(entry, onSaved) {
   });
 }
 
-/* ---------------- index.html: 작성 폼 + 가로 캐러셀 ---------------- */
+/* ---------------- index.html: 작성 폼 + 목록 미리보기 ---------------- */
 
 function initGuestbookSection() {
-  const carouselEl = document.getElementById('guestbook-carousel');
-  const hintEl = document.getElementById('guestbook-hint');
+  const listEl = document.getElementById('guestbook-list');
   const nameEl = document.getElementById('guestbook-name-input');
   const messageEl = document.getElementById('guestbook-message-input');
   const passwordEl = document.getElementById('guestbook-password-input');
   const submitBtn = document.getElementById('btn-guestbook-submit');
 
-  function renderCarousel(entries) {
+  function renderList(entries) {
     if (!entries.length) {
-      carouselEl.innerHTML = '';
-      hintEl.classList.add('hidden');
+      listEl.innerHTML = '<div class="guestbook-empty">첫 번째 축하 메시지를 남겨주세요 ♥</div>';
       return;
     }
-    carouselEl.innerHTML = entries.slice().reverse().map(g => guestbookCardHtml(g, 'guestbook-card')).join('');
-    hintEl.classList.remove('hidden');
-    carouselEl.querySelectorAll('.guestbook-edit-btn').forEach(btn => {
+    listEl.innerHTML = entries.slice().reverse().map(guestbookRowHtml).join('');
+    listEl.querySelectorAll('.guestbook-edit-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const entry = entries.find(e => e.id === btn.dataset.id);
         if (entry) openEditModal(entry, updated => {
           Object.assign(entry, updated);
-          renderCarousel(entries);
+          renderList(entries);
         });
       });
     });
   }
 
   let entries = [];
-  fetchGuestbook()
-    .then(list => { entries = list; renderCarousel(entries); })
-    .catch(() => { hintEl.classList.add('hidden'); });
+  // 초기 목록을 다 불러오기 전에 방문자가 먼저 글을 남기면(느린 네트워크 등),
+  // 나중에 도착한 초기 목록이 방금 올린 글을 덮어써버리는 경쟁 상태를 막기 위해
+  // 제출 시 이 프라미스를 먼저 기다립니다.
+  const ready = fetchGuestbook()
+    .then(list => { entries = list; renderList(entries); return entries; })
+    .catch(() => { listEl.innerHTML = '<div class="guestbook-empty">방명록을 불러오지 못했습니다</div>'; return entries; });
 
   submitBtn.addEventListener('click', async () => {
     const name = nameEl.value.trim();
@@ -163,10 +164,11 @@ function initGuestbookSection() {
     submitBtn.disabled = true;
     submitBtn.textContent = '보내는 중…';
     try {
+      await ready;
       const res = await submitGuestbookEntry(name, message, password);
       if (res.result === 'ok') {
         entries.push({ id: res.id, date: '', name, message });
-        renderCarousel(entries);
+        renderList(entries);
         nameEl.value = '';
         messageEl.value = '';
         passwordEl.value = '';
@@ -182,50 +184,7 @@ function initGuestbookSection() {
   });
 }
 
-/* ---------------- guestbook.html: 세로 목록 + 확대 모달 ---------------- */
-
-let _viewModalEl = null;
-
-function ensureViewModal() {
-  if (_viewModalEl) return _viewModalEl;
-  const el = document.createElement('div');
-  el.className = 'gb-modal-overlay hidden';
-  el.id = 'gb-view-modal';
-  el.innerHTML = `
-    <div class="gb-view-box">
-      <button class="gb-modal-close" id="gb-view-close" aria-label="닫기">✕</button>
-      <div class="guestbook-view-card" id="gb-view-card"></div>
-    </div>
-  `;
-  document.body.appendChild(el);
-
-  const close = () => el.classList.add('hidden');
-  el.addEventListener('click', e => { if (e.target === el) close(); });
-  el.querySelector('#gb-view-close').addEventListener('click', close);
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && !el.classList.contains('hidden')) close();
-  });
-
-  _viewModalEl = el;
-  return el;
-}
-
-function openViewModal(entry, onSaved) {
-  const el = ensureViewModal();
-  const cardEl = el.querySelector('#gb-view-card');
-  cardEl.innerHTML = guestbookCardHtml(entry, 'guestbook-card guestbook-view-card-inner');
-  el.classList.remove('hidden');
-  const editBtn = cardEl.querySelector('.guestbook-edit-btn');
-  if (editBtn) {
-    editBtn.addEventListener('click', () => {
-      openEditModal(entry, updated => {
-        Object.assign(entry, updated);
-        openViewModal(entry, onSaved);
-        if (onSaved) onSaved(updated);
-      });
-    });
-  }
-}
+/* ---------------- guestbook.html: 전체 목록 ---------------- */
 
 function initGuestbookPage() {
   const listEl = document.getElementById('guestbook-page-list');
@@ -244,14 +203,7 @@ function initGuestbookPage() {
       listEl.innerHTML = '<div class="guestbook-empty">첫 번째 축하 메시지를 남겨주세요 ♥</div>';
       return;
     }
-    listEl.innerHTML = entries.slice().reverse().map(g => guestbookCardHtml(g, 'guestbook-card guestbook-list-card')).join('');
-    listEl.querySelectorAll('.guestbook-list-card').forEach(cardEl => {
-      cardEl.addEventListener('click', e => {
-        if (e.target.closest('.guestbook-edit-btn')) return;
-        const entry = entries.find(en => en.id === cardEl.dataset.id);
-        if (entry) openViewModal(entry, () => renderList());
-      });
-    });
+    listEl.innerHTML = entries.slice().reverse().map(guestbookRowHtml).join('');
     listEl.querySelectorAll('.guestbook-edit-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const entry = entries.find(en => en.id === btn.dataset.id);
