@@ -501,6 +501,32 @@ function groupAccountRows(rows) {
   return Object.keys(groupsMap).map(label => ({ label, items: groupsMap[label] }));
 }
 
+// #page가 display:none인 동안 카카오 약도 스크립트가 실행되면
+// 지도가 폭 0으로 초기화되어 화면에 절반만 그려지는 문제가 있어,
+// 페이지가 실제로 보이게 된 뒤(레이아웃이 확정된 뒤)에만 렌더링합니다.
+function initRoughmap() {
+  const container = document.getElementById('daumRoughmapContainer1789198363560');
+  if (!container) return;
+
+  function render() {
+    requestAnimationFrame(() => {
+      new daum.roughmap.Lander({
+        timestamp: '1789198363560',
+        key: '2w2zhdi2f9fd',
+        mapWidth: '360',
+        mapHeight: '240',
+      }).render();
+    });
+  }
+
+  if (window.daum && window.daum.roughmap) {
+    render();
+  } else {
+    const loader = document.querySelector('.daum_roughmap_loader_script');
+    if (loader) loader.addEventListener('load', render);
+  }
+}
+
 async function loadData() {
   const [settingsRows, interviewRows, galleryRows, storyRows, accountRows, photos] = await Promise.all([
     fetchSheetRows('설정'),
@@ -532,6 +558,7 @@ async function loadData() {
     renderPage(data);
     document.getElementById('load-state').classList.add('hidden');
     document.getElementById('page').classList.remove('hidden');
+    initRoughmap();
   } catch (err) {
     console.error(err);
     document.getElementById('load-state').innerHTML =
