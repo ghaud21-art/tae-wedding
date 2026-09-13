@@ -613,6 +613,20 @@ function openGalleryLightbox(driveId, index) {
 const BGM_VIDEO_ID = '1jaV8WOIvTM';
 let ytPlayer = null;
 let bgmMuted = true;
+let bgmPlayerReady = false;
+let bgmUnlockRequested = false;
+
+// 방문자가 플레이어 준비 전에 먼저 탭/스크롤하면 unMute() 호출이 씹혀서
+// (아직 로딩 중인 iframe에 보내는 명령이라 반영되지 않음) 소리가 안 나는 문제가
+// 있었습니다. 그래서 "풀어달라는 요청이 있었는지"만 플래그로 남겨두고,
+// 플레이어가 실제로 준비된 시점에 다시 한번 확인해서 적용합니다.
+function applyBgmUnlockIfReady() {
+  if (!bgmUnlockRequested || !bgmPlayerReady || !ytPlayer) return;
+  bgmMuted = false;
+  ytPlayer.unMute();
+  ytPlayer.playVideo();
+  updateBgmToggleUI();
+}
 
 function loadYouTubeApi() {
   return new Promise(resolve => {
@@ -644,12 +658,18 @@ async function initBgm() {
       controls: 0, playsinline: 1, disablekb: 1, fs: 0, modestbranding: 1,
     },
     events: {
-      onReady: e => { e.target.playVideo(); updateBgmToggleUI(); },
+      onReady: e => {
+        bgmPlayerReady = true;
+        e.target.playVideo();
+        applyBgmUnlockIfReady();
+        updateBgmToggleUI();
+      },
     },
   });
 
   toggleBtn.addEventListener('click', () => {
-    if (!ytPlayer) return;
+    bgmUnlockRequested = true;
+    if (!bgmPlayerReady) return; // 아직 준비 전이면 onReady에서 자동 적용됩니다.
     bgmMuted = !bgmMuted;
     if (bgmMuted) ytPlayer.mute();
     else { ytPlayer.unMute(); ytPlayer.playVideo(); }
@@ -658,16 +678,12 @@ async function initBgm() {
 
   // 브라우저 자동재생 정책상 소리 있는 자동재생은 막혀 있어, 방문자가 화면을 처음
   // 터치/클릭하는 순간 음소거를 풀어 자연스럽게 음악이 들리도록 합니다.
-  const unmuteOnFirstInteract = () => {
-    if (ytPlayer && bgmMuted) {
-      bgmMuted = false;
-      ytPlayer.unMute();
-      ytPlayer.playVideo();
-      updateBgmToggleUI();
-    }
+  const unlockOnFirstInteract = () => {
+    bgmUnlockRequested = true;
+    applyBgmUnlockIfReady();
   };
-  document.addEventListener('click', unmuteOnFirstInteract, { once: true });
-  document.addEventListener('touchstart', unmuteOnFirstInteract, { once: true });
+  document.addEventListener('click', unlockOnFirstInteract, { once: true });
+  document.addEventListener('touchstart', unlockOnFirstInteract, { once: true });
 }
 
 async function loadData() {
