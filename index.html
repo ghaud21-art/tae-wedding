@@ -81,7 +81,12 @@
       <div class="eyebrow-en">Gallery</div>
       <div class="eyebrow-kr">웨딩 갤러리</div>
     </div>
-    <div class="gallery-grid" id="gallery-grid"></div>
+    <div class="gallery-grid-wrap">
+      <button class="gallery-nav-btn gallery-nav-prev hidden" id="gallery-prev" aria-label="이전 사진">‹</button>
+      <div class="gallery-grid" id="gallery-grid"></div>
+      <button class="gallery-nav-btn gallery-nav-next hidden" id="gallery-next" aria-label="다음 사진">›</button>
+    </div>
+    <div class="gallery-page-dots hidden" id="gallery-dots"></div>
   </section>
 
   <!-- 7. 예식 안내 (사진 - 달력 - 타이머 순) -->
@@ -229,6 +234,14 @@
 </div>
 
 <div id="toast"></div>
+
+<div class="gallery-lightbox hidden" id="gallery-lightbox">
+  <button class="gallery-lightbox-close" id="gallery-lightbox-close" aria-label="닫기">✕</button>
+  <img id="gallery-lightbox-img" alt="">
+</div>
+
+<div id="bgm-player" aria-hidden="true"></div>
+<button class="bgm-toggle" id="btn-bgm-toggle" aria-label="배경음악 켜기/끄기">♪</button>
 
 <script src="config.js"></script>
 <script src="script.js"></script>

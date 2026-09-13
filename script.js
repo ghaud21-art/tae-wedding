@@ -211,7 +211,7 @@ function renderPage(data) {
   const photos = data.photos || {};
   const heroId = (photos.hero && photos.hero[0]) || info.heroImageId;
   const interviewId = (photos.interview && photos.interview[0]) || info.interviewImageId;
-  const infoPhotoId = heroId;
+  const infoPhotoId = (photos.info && photos.info[0]) || info.infoImageId || heroId;
   const finalGalleryIds = (photos.gallery && photos.gallery.length) ? photos.gallery : galleryIds;
 
   // 1. 히어로 — 사진 (드라이브 > 시트 ID > 저장소 기본 사진 순)
@@ -359,15 +359,8 @@ function renderPage(data) {
   // 12. 방명록 (guestbook.js)
   initGuestbookSection();
 
-  // 6. 갤러리 (인스타그램 피드 느낌의 그리드)
-  const galleryGrid = document.getElementById('gallery-grid');
-  galleryGrid.innerHTML = '';
-  finalGalleryIds.forEach((gid, i) => {
-    const slot = document.createElement('div');
-    slot.className = 'img-slot gallery-grid-item';
-    setImgSlot(slot, gid, `갤러리 사진 ${i + 1}`);
-    galleryGrid.appendChild(slot);
-  });
+  // 6. 갤러리 (인스타그램 피드 느낌의 그리드, 9장씩 화살표로 이동)
+  initGalleryGrid(finalGalleryIds);
 
   // 13. 마무리
   document.getElementById('ending-sign').textContent = weddingDate
@@ -527,6 +520,132 @@ function initRoughmap() {
   }
 }
 
+/* ---------------- 갤러리 그리드 (9장씩, 화살표로 페이지 이동) ---------------- */
+
+const GALLERY_PAGE_SIZE = 9;
+
+function initGalleryGrid(galleryIds) {
+  const grid = document.getElementById('gallery-grid');
+  const prevBtn = document.getElementById('gallery-prev');
+  const nextBtn = document.getElementById('gallery-next');
+  const dotsEl = document.getElementById('gallery-dots');
+  const totalPages = Math.ceil(galleryIds.length / GALLERY_PAGE_SIZE) || 1;
+  let page = 0;
+
+  function render() {
+    const start = page * GALLERY_PAGE_SIZE;
+    grid.innerHTML = '';
+    galleryIds.slice(start, start + GALLERY_PAGE_SIZE).forEach((gid, i) => {
+      const idx = start + i;
+      const slot = document.createElement('div');
+      slot.className = 'img-slot gallery-grid-item';
+      setImgSlot(slot, gid, `갤러리 사진 ${idx + 1}`);
+      slot.addEventListener('click', () => openGalleryLightbox(gid, idx));
+      grid.appendChild(slot);
+    });
+
+    prevBtn.classList.toggle('hidden', totalPages <= 1);
+    nextBtn.classList.toggle('hidden', totalPages <= 1);
+    dotsEl.classList.toggle('hidden', totalPages <= 1);
+    prevBtn.disabled = page === 0;
+    nextBtn.disabled = page >= totalPages - 1;
+
+    dotsEl.innerHTML = Array.from({ length: totalPages }, (_, i) =>
+      `<span class="dot${i === page ? ' active' : ''}"></span>`
+    ).join('');
+  }
+
+  prevBtn.addEventListener('click', () => { if (page > 0) { page--; render(); } });
+  nextBtn.addEventListener('click', () => { if (page < totalPages - 1) { page++; render(); } });
+
+  render();
+}
+
+/* ---------------- 갤러리 크게보기 팝업 ---------------- */
+
+function initGalleryLightbox() {
+  const overlay = document.getElementById('gallery-lightbox');
+  const closeBtn = document.getElementById('gallery-lightbox-close');
+  if (!overlay || !closeBtn) return;
+  const close = () => overlay.classList.add('hidden');
+  closeBtn.addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !overlay.classList.contains('hidden')) close();
+  });
+}
+
+function openGalleryLightbox(driveId, index) {
+  const overlay = document.getElementById('gallery-lightbox');
+  const img = document.getElementById('gallery-lightbox-img');
+  if (!overlay || !img) return;
+  img.src = driveImageUrl(driveId, 1600);
+  img.alt = `갤러리 사진 ${index + 1}`;
+  overlay.classList.remove('hidden');
+}
+
+/* ---------------- 배경음악 (유튜브, 화면엔 안 보이는 재생기) ---------------- */
+
+const BGM_VIDEO_ID = '1jaV8WOIvTM';
+let ytPlayer = null;
+let bgmMuted = true;
+
+function loadYouTubeApi() {
+  return new Promise(resolve => {
+    if (window.YT && window.YT.Player) { resolve(); return; }
+    const prevReady = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = () => { if (prevReady) prevReady(); resolve(); };
+    if (!document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(tag);
+    }
+  });
+}
+
+function updateBgmToggleUI() {
+  const btn = document.getElementById('btn-bgm-toggle');
+  if (btn) btn.classList.toggle('muted', bgmMuted);
+}
+
+async function initBgm() {
+  const toggleBtn = document.getElementById('btn-bgm-toggle');
+  if (!toggleBtn) return;
+
+  await loadYouTubeApi();
+  ytPlayer = new YT.Player('bgm-player', {
+    videoId: BGM_VIDEO_ID,
+    playerVars: {
+      autoplay: 1, mute: 1, loop: 1, playlist: BGM_VIDEO_ID,
+      controls: 0, playsinline: 1, disablekb: 1, fs: 0, modestbranding: 1,
+    },
+    events: {
+      onReady: e => { e.target.playVideo(); updateBgmToggleUI(); },
+    },
+  });
+
+  toggleBtn.addEventListener('click', () => {
+    if (!ytPlayer) return;
+    bgmMuted = !bgmMuted;
+    if (bgmMuted) ytPlayer.mute();
+    else { ytPlayer.unMute(); ytPlayer.playVideo(); }
+    updateBgmToggleUI();
+  });
+
+  // 브라우저 자동재생 정책상 소리 있는 자동재생은 막혀 있어, 방문자가 화면을 처음
+  // 터치/클릭하는 순간 음소거를 풀어 자연스럽게 음악이 들리도록 합니다.
+  const unmuteOnFirstInteract = () => {
+    if (ytPlayer && bgmMuted) {
+      bgmMuted = false;
+      ytPlayer.unMute();
+      ytPlayer.playVideo();
+      updateBgmToggleUI();
+    }
+  };
+  document.addEventListener('click', unmuteOnFirstInteract, { once: true });
+  document.addEventListener('touchstart', unmuteOnFirstInteract, { once: true });
+}
+
 async function loadData() {
   const [settingsRows, interviewRows, galleryRows, storyRows, accountRows, photos] = await Promise.all([
     fetchSheetRows('설정'),
@@ -559,6 +678,8 @@ async function loadData() {
     document.getElementById('load-state').classList.add('hidden');
     document.getElementById('page').classList.remove('hidden');
     initRoughmap();
+    initGalleryLightbox();
+    initBgm();
   } catch (err) {
     console.error(err);
     document.getElementById('load-state').innerHTML =

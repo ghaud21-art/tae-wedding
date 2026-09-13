@@ -2,7 +2,7 @@
  * 청첩장 구글 시트용 Apps Script.
  *
  * 기능:
- *  - doGet  : 드라이브 사진 폴더(메인/인터뷰/마무리/갤러리)의 사진 목록을 사이트에 전달
+ *  - doGet  : 드라이브 사진 폴더(메인/인터뷰/마무리/갤러리/예식안내)의 사진 목록을 사이트에 전달
  *             → 폴더에 사진을 올리기만 하면 사이트에 자동으로 반영됩니다.
  *             ?action=getGuestbook 이면 "방명록" 탭의 메시지 목록을 반환 (비밀번호는 절대 포함 안 함)
  *  - doPost : action 기준으로 라우팅합니다.
@@ -21,7 +21,7 @@
  */
 
 const PHOTOS_FOLDER_ID = '1OPxzsGfkG-2rL7sUQ3xsIJNfyv1wc1xr'; // "태경님 청첩장 사진" 폴더
-const SECTION_FOLDERS = { hero: '메인', interview: '인터뷰', ending: '마무리', gallery: '갤러리' };
+const SECTION_FOLDERS = { hero: '메인', interview: '인터뷰', ending: '마무리', gallery: '갤러리', info: '예식안내' };
 const SNAP_FOLDER_NAME = '게스트스냅';
 const GUESTBOOK_SHEET_NAME = '방명록';
 
@@ -59,7 +59,9 @@ function listImageIds(root, folderName) {
       items.push({ id: f.getId(), name: f.getName() });
     }
   }
-  items.sort(function (a, b) { return a.name.localeCompare(b.name); }); // 파일명 순 = 갤러리 순서
+  // 파일명 순 = 갤러리 순서. 일반 localeCompare는 "10.jpg"가 "2.jpg"보다 앞에 오는
+  // 문자열 정렬이라 사진이 10장을 넘으면 순서가 꼬이므로, 숫자를 인식하는 정렬을 씁니다.
+  items.sort(function (a, b) { return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }); });
   return items.map(function (x) { return x.id; });
 }
 
