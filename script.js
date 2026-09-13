@@ -6,6 +6,15 @@
 const CFG = window.WEDDING_CONFIG;
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
+// 카카오 SDK가 먼저 로드되어 있고, config.js에 실제 JS 키가 채워져 있을 때만 초기화합니다.
+// (플랫폼 도메인 등록을 안 했다면 초기화는 되지만 공유 호출 시 콘솔에 에러가 찍히며 실패합니다.)
+function kakaoReady() {
+  return !!(window.Kakao && CFG.KAKAO_JS_KEY && !CFG.KAKAO_JS_KEY.includes('여기에'));
+}
+if (kakaoReady() && !Kakao.isInitialized()) {
+  Kakao.init(CFG.KAKAO_JS_KEY);
+}
+
 /* ---------------- 구글 시트 읽기 ----------------
  * 시트는 탭 여러 개로 되어 있습니다: 설정 / 인터뷰 / 갤러리 / 우리의시간 / 계좌번호 / 참석여부 / 방명록
  * 신랑신부가 실제로 고치는 값들은 전부 "설정" 탭 안에 있습니다. */
@@ -367,6 +376,21 @@ function renderPage(data) {
     ? `${info.groomName} & ${info.brideName} · ${weddingDate.getFullYear()}. ${weddingDate.getMonth() + 1}. ${weddingDate.getDate()}`
     : `${info.groomName} & ${info.brideName}`;
   document.getElementById('btn-share').addEventListener('click', () => {
+    if (kakaoReady() && Kakao.isInitialized()) {
+      Kakao.Share.sendDefault({
+        objectType: 'feed',
+        content: {
+          title: `${info.groomName} ♥ ${info.brideName} 결혼합니다`,
+          description: document.getElementById('info-line').innerText,
+          imageUrl: driveImageUrl(heroId, 800) || (location.origin + location.pathname.replace(/index\.html$/, '') + 'assets/hero.jpg'),
+          link: { mobileWebUrl: location.href, webUrl: location.href },
+        },
+        buttons: [
+          { title: '청첩장 보러가기', link: { mobileWebUrl: location.href, webUrl: location.href } },
+        ],
+      });
+      return;
+    }
     const shareData = {
       title: `${info.groomName} ♥ ${info.brideName} 결혼합니다`,
       text: document.getElementById('info-line').innerText,
